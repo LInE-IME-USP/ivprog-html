@@ -1,0 +1,114 @@
+<script type="text/ng-template"  id="btns.html">
+	<button ng-click="add(data, 'if', 'se')" class="btn">+ IF</button>
+	<button ng-click="add(data, 'var', 'var')" class="btn">+ VAR</button>
+    <button ng-click="add(data, 'write', 'escrever')" class="btn">+ WRITE</button>
+    <button ng-click="add(data, 'for', 'for')" class="btn">+ FOR</button>
+</script>
+
+
+<script type="text/ng-template"  id="inner.html">
+	<ul>
+        <li ng-repeat="data in data.nodes" ng-include="getTemplate(data)"></li>
+    </ul>
+</script>
+
+<script type="text/ng-template"  id="tree_item_renderer.html">
+    {{data.name}} {{data.type}}
+    <button ng-click="delete(data)" ng-show="data.nodes.length > 0" class="btn">Limpar</button>
+    <span ng-include="'inner.html'"></span>
+    <span ng-include="btns.html"></span>
+</script>
+<script type="text/ng-template"  id="start.html">
+    {{data.name}} {{data.type}}
+    <button ng-click="delete(data)" ng-show="data.nodes.length > 0" class="btn">Limpar</button>
+    <span ng-include="'inner.html'"></span>
+    <span ng-include="'btns.html'"></span>
+</script>
+<script type="text/ng-template"  id="for.html">
+    <i class="icon-repeat"></i>
+    {{data.name}}  
+                    <select ng-model='teste'>
+                        <option ng-repeat="var in programs[currentProgram].functions[0].vars">{{var.name}}</option>
+                    </select> igual <input type="text" value="VAR">
+    <button class="btn pull-right" ng-click="removeItem(data.parent, data)"><i class="icon icon-trash"></i></button>
+    <button ng-click="delete(data)" ng-show="data.nodes.length > 0" class="btn">Limpar</button>
+    <span ng-include="'inner.html'"></span>
+    <span ng-include="'btns.html'"></span>
+
+</script> 
+<script type="text/ng-template"  id="if.html">
+    {{data.name}} 
+                    <select ng-model='teste'>
+                        <option ng-repeat="var in programs[currentProgram].functions[0].vars">{{var.name}}</option>
+                    </select> igual <input type="text" value="VAR">
+    <button class="btn pull-right" ng-click="removeItem(data.parent, data)"><i class="icon icon-trash"></i></button>
+    <button ng-click="delete(data)" ng-show="data.nodes.length > 0" class="btn">Limpar</button>
+    <span ng-include="'inner.html'"></span>
+    <span ng-include="'btns.html'"></span>
+
+</script>
+<script type="text/ng-template"  id="write.html">
+    {{data.name}}
+
+    <span select-variable="data.variable" select-model="data.variable" select-vars="programs[currentProgram].functions[0].vars"></span>
+
+    <!--select ng-model='data.variable'>
+        <option value="var.id" ng-repeat="var in programs[currentProgram].functions[0].vars">{{var.name}}</option>
+    </select-->
+</script>
+<script type="text/ng-template"  id="var.html">
+    <i>{{data.name}}</i> <span edit-in-place='data.data.varName'></span> = <input type="text" value="VAR"> {{data.data.varName}}
+    <button ng-click="delete(data)" ng-show="data.nodes.length > 0">Delete nodes</button>
+</script>
+
+<div class="container">
+    <ul class="nav nav-tabs">
+        <li class="dropdown" ng-repeat="program in programs">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{program.programName}} <b class="caret"></b></a>
+            <ul class="dropdown-menu">
+              <li ng-repeat="func in program.functions"><a href="#dropdown1" data-toggle="tab">{{func.functionName}}</a></li>
+              <li><a href="#dropdown1" data-toggle="tab">create a function</a></li>
+              <li><a href="#dropdown1" data-toggle="tab">create a method</a></li>
+            </ul>
+        </li>
+    </ul>
+    <div class="row-fluid" ng-repeat="prog in programs">
+        <div class="span6">
+            <div class="ivprog" ng-repeat="func in prog.functions">
+                <div class="parameters">
+                    <h5><i class="icon icon-th-list" style="font-size: 14px;"></i> Parâmetros <button class="btn" ng-click="addParam()"><i class="icon icon-plus"></i></button></h5>
+                    <span class="var" ng-repeat="param in func.params">&nbsp;<span edit-in-place='param.name'></span> = <span edit-in-place='param.initialValue'></span> <span edit-in-place="param.opa" /> <button class="btn btn-mini" ng-click="removeParam(var)"><i class="icon icon-remove"></i></button></span>
+                    <span class="clearfix"></span>
+                </div>
+                <div class="variables">
+                    <h5><i class="icon icon-th-list" style="font-size: 14px;"></i> Variáveis locais <button class="btn" ng-click="addVar()"><i class="icon icon-plus"></i></button></h5>
+                    <span class="var" ng-repeat="var in func.vars">&nbsp;<span edit-in-place='var.name'></span> = <span edit-in-place='var.initialValue'></span> <span edit-in-place="var.opa" /> <div class="btn-group"><button class="btn btn-mini" ng-click="configVar(var)"><i class="icon icon-wrench"></i></button><button class="btn btn-mini" ng-click="removeVar(var)"><i class="icon icon-remove"></i></button></div></span>
+                    <span class="clearfix"></span>
+                </div>
+                
+                <ul>
+                    <li ng-repeat="data in programs[currentProgram].functions[0].nodes" ng-include="getTemplate(data)">
+                    </li>
+                    <button ng-click="add(null, 'if', 'se')" class="btn">+ IF</button>
+                    <button ng-click="add(null, 'read', 'ler')" class="btn">+R</button>
+                    <button ng-click="add(null, 'write', 'escrever')" class="btn">+W</button>
+                </ul>
+
+            </div>
+        </div>
+        <div class="span6">
+            <h4>Source</h4>
+            <div class="source">
+                <div class="variables">
+                    <i>var</i><span class="var" ng-repeat="var in vars"> &nbsp;<b>{{var.name}}</b> = {{var.initialValue}}<span ng-show="vars.length>1&&$index<vars.length-1">,</span></span><span ng-show="vars.length>1">;</span>
+                </div>
+            </div>
+            <h4>Output</h4>
+            <button ng-click="run()">Run</button>
+            <div class="output">
+
+            </div>
+        </div>
+    </div>
+</div>
+

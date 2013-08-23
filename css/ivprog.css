@@ -1,0 +1,155 @@
+.header{
+  position: relative;
+  padding: 10px 0;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0,0,0,.4), 0 0 30px rgba(0,0,0,.075);
+  background: #020031; /* Old browsers */
+  background: -moz-linear-gradient(45deg,  #020031 0%, #6d3353 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left bottom, right top, color-stop(0%,#020031), color-stop(100%,#6d3353)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(45deg,  #020031 0%,#6d3353 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(45deg,  #020031 0%,#6d3353 100%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(45deg,  #020031 0%,#6d3353 100%); /* IE10+ */
+  background: linear-gradient(45deg,  #020031 0%,#6d3353 100%); /* W3C */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#020031', endColorstr='#6d3353',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
+  -webkit-box-shadow: inset 0 3px 7px rgba(0,0,0,.2), inset 0 -3px 7px rgba(0,0,0,.2);
+     -moz-box-shadow: inset 0 3px 7px rgba(0,0,0,.2), inset 0 -3px 7px rgba(0,0,0,.2);
+          box-shadow: inset 0 3px 7px rgba(0,0,0,.2), inset 0 -3px 7px rgba(0,0,0,.2);
+
+}
+
+.header .container {
+  position: relative;
+  z-index: 2;
+}
+.header:after {
+  content: '';
+  display: block;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: url(../img/bs-docs-masthead-pattern.png) repeat center center;
+  opacity: .4;
+}
+
+.header h1{
+  margin: 0 0 0 30px;
+}
+
+
+.header .i18n {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  margin-top: 0 !important;
+  padding: 15px;
+  height: auto !important;
+  overflow: hidden; /* clearfix */
+  font-size: 13px !important;
+  line-height: 16px !important;
+  background: #222 !important; /* reset image and color in one line */
+  background: rgba(0,0,0,.5) !important;
+  border: 0 !important;
+  border-radius: 4px;
+  box-shadow: inset 0 3px 5px rgba(0,0,0,.5), 0 1px 0 rgba(255,255,255,.1);
+  z-index: 1000;
+}
+
+.ivprog ul{
+  list-style: none;
+  margin: 5px;
+  font-family: 'anonymous_proregular';
+  font-weight: bold;
+}
+.ivprog li{
+  border: 1px solid #C6C6C6;
+  margin: 5px;
+  padding: 5px;
+}
+
+
+
+
+
+
+.edit-in-place span {
+  cursor: pointer;
+}
+
+.edit-in-place input, .edit-in-place select {
+  display: none;
+}
+
+.edit-in-place.active span {
+  display: none;
+}
+
+.edit-in-place.active input, .edit-in-place.active select {
+  display: inline-block;
+}
+
+.over{
+  background: yellow;
+}
+
+.ivprog{
+  
+}
+.ivprog h5{
+  font-family: arial;
+  font-size: 12px;
+  text-transform: uppercase;
+  padding: 0 10px 0 0;
+  margin: 0 0 0 5px;
+}
+.ivprog .variables{
+  background: #EFEFEF;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  margin: 10px;
+  padding: 3px 10px 10px 3px;
+}
+.ivprog .variables .var{
+  background: #FFFFFF;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  margin: 5px;
+  padding: 3px 10px;
+  display: block;
+  float: left;
+}
+.ivprog .parameters{
+  background: #EFEFEF;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  margin: 10px;
+  padding: 3px 10px 10px 3px;
+}
+.ivprog .parameters .var{
+  background: #FFFFFF;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  margin: 5px;
+  padding: 3px 10px;
+  display: block;
+  float: left;
+}
+
+
+.source{
+  background: #6E6E6E;
+  margin: 5px;
+  font-family: 'anonymous_proregular';
+  font-weight: normal;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  margin: 5px;
+  padding: 6px 20px;
+  color: #FFF;
+}
