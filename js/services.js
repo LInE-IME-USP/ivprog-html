@@ -5,27 +5,44 @@ ivprogModule.factory('Exercicio', function($resource){
     query: {method:'GET', params:{}, isArray:true }});
 });
 
-ivprogModule.factory('IvProgSource', function(){
+ivprogModule.factory('IvProgSourceParts', function(){
+  return {
+    genVars: function(){
+      alert(1212);
+    }
+  };
+});
+var writer = function(t){
+    $('.output').append(t+'<br>');
+}
+var processNodes = function(nodes){
+  var scriptStr = "";
+  angular.forEach(nodes, function(node, key){
+    scriptStr+= "";
+  });
+  return "var nodes;";
+}
+ivprogModule.factory('IvProgSource', function(IvProgSourceParts,$filter){
     return {
           generate: function(o){
             var scriptStr = "";
             angular.forEach(o.functions, function(func, key){
               if(func.functionName=="main"){
                 scriptStr+="var t = function(){";
+                scriptStr+=" ";
+                // processing variables
                 angular.forEach(func.vars, function(variable, keyv){
                   scriptStr+="var var_"+variable.id+" = "+variable.initialValue+";";
                 });
-
-                scriptStr+="function "+func.functionName+"(){"+
-                    "alert(1);}"+
-                "main();}; t();";
+                // processing other stuff
+                scriptStr+="function "+func.functionName+"(){";
+                scriptStr+= processNodes(func.nodes);
+                scriptStr+= "}";
+                scriptStr += "main();}; t();";
               }
               window.eval(scriptStr);
               console.log(scriptStr);
             });
-          },
-          genVars: function(){
-            alert(112);
           }
         }
 });

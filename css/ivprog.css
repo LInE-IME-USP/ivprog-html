@@ -58,11 +58,11 @@
 
 .ivprog ul{
   list-style: none;
-  margin: 5px;
+  margin: 0px;
   font-family: 'anonymous_proregular';
   font-weight: bold;
 }
-.ivprog li{
+.ivprogs li{
   border: 1px solid #C6C6C6;
   margin: 5px;
   padding: 5px;
@@ -141,7 +141,7 @@
 }
 
 
-.source{
+.source, .output{
   background: #6E6E6E;
   margin: 5px;
   font-family: 'anonymous_proregular';
@@ -152,4 +152,14 @@
   margin: 5px;
   padding: 6px 20px;
   color: #FFF;
+}
+
+
+.ivprog .write{
+  background: #EFEFEF;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  margin: 10px;
+  padding: 10px 10px 10px 10px;
 }

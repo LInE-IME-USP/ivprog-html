@@ -5,7 +5,7 @@ ivProgApp.config(['$routeProvider', function($routeProvider) {
       when('/startup', { templateUrl: 'partials/start.html', controller: StartCtrl }).
       when('/opened/:exercicioId', { templateUrl: 'partials/opened.html', controller: IvProgAbertoCtrl }).
       when('/create/', { templateUrl: 'partials/create.html', controller: IvProgCreateCtrl }).
-      otherwise({redirectTo: '/startup'});
+      otherwise({redirectTo: '/create'}); // era startup
 }]);
 
 ivProgApp.run(function($rootScope){
@@ -87,8 +87,8 @@ ivProgApp.directive('selectVariable', function() {
   return {
     restrict: 'A',
     scope: { value: '=selectVariable', model: '=selectModel', vars: '=selectVars' },
-    templatesss: '<span ng-click="edit()" ng-bind="value">aa</span><input ng-model="value" type="text" class="input" />',
-    template: '<span ng-click="edit()" ng-bind="value"></span><select ng-model="model">                        <option ng-repeat="var in vars">{{var.name}}</option></select>',
+    templatesss: '<span ng-click="edit()" ng-bind="value"></span><input ng-model="value" type="text" class="input" />',
+    template: '<span ng-click="edit()"><span ng-show="value==\'\'"><i>selecionar variável</i></span><span ng-hide="value==\'\'">{{vars[value].name}}</span></span><select ng-model="model">                        <option value="{{var.id}}" ng-repeat="var in vars">{{var.name}}</option></select>',
     link: function ( $scope, element, attrs ) {
       // Let's get a reference to the input element, as we'll want to reference it.
       var inputElement = angular.element( element.children()[1] );

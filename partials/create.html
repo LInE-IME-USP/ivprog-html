@@ -5,10 +5,9 @@
     <button ng-click="add(data, 'for', 'for')" class="btn">+ FOR</button>
 </script>
 
-
 <script type="text/ng-template"  id="inner.html">
 	<ul>
-        <li ng-repeat="data in data.nodes" ng-include="getTemplate(data)"></li>
+        <li ng-repeat="data in data.nodes|orderBy:order" ng-include="getTemplate(data)"></li>
     </ul>
 </script>
 
@@ -48,13 +47,16 @@
 
 </script>
 <script type="text/ng-template"  id="write.html">
-    {{data.name}}
-
-    <span select-variable="data.variable" select-model="data.variable" select-vars="programs[currentProgram].functions[0].vars"></span>
-
-    <!--select ng-model='data.variable'>
-        <option value="var.id" ng-repeat="var in programs[currentProgram].functions[0].vars">{{var.name}}</option>
-    </select-->
+    <div class="write">
+        {{data.name}}
+        (<span select-variable="data.variable" select-model="data.variable" select-vars="programs[currentProgram].functions[0].vars"></span>)
+        
+        <div class="btn-group pull-right hide">
+            <button ng-click="order(data, -1)" class="btn btn-mini">UP</button>
+            <button ng-click="order(data, 1)" class="btn btn-mini">DOWN</button>
+        </div>
+        <span class="badge badge-important pull-right" ng-show="data.variable==''"><i class="icon icon-exclamation"></i></span>
+    </div>  
 </script>
 <script type="text/ng-template"  id="var.html">
     <i>{{data.name}}</i> <span edit-in-place='data.data.varName'></span> = <input type="text" value="VAR"> {{data.data.varName}}
@@ -104,7 +106,7 @@
                 </div>
             </div>
             <h4>Output</h4>
-            <button ng-click="run()">Run</button>
+            <div class="btn-group"><button class="btn" ng-click="run()"><i class="icon icon-play"></i></button><button class="btn" ng-click="clearOutput()">Clear</button></div>
             <div class="output">
 
             </div>

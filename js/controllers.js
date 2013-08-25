@@ -1,7 +1,7 @@
 function StartCtrl(){
 
 }
-function IvProgCreateCtrl($scope, IvProgSource){
+function IvProgCreateCtrl($scope, IvProgSource, $filter){
 	$scope.itemCount = 0;
 	$scope.vars = [];
 	$scope.params = [];
@@ -13,7 +13,7 @@ function IvProgCreateCtrl($scope, IvProgSource){
 							functions: [
 								{
 									functionName: "main",
-									vars: [],
+									vars: {},
 									params: [],
 									type: "main",
 									nodes: []
@@ -35,13 +35,26 @@ function IvProgCreateCtrl($scope, IvProgSource){
 		$scope.params.splice($scope.params.indexOf(v), 1);
 	}
 	$scope.addVar = function(){
-		//var ind = $scope.vars.length;
-		var ind = $scope.programs[$scope.currentProgram].functions[0].vars.length;
-		//$scope.vars.push({ name: 'newVar'+ind, type: 'int', initialValue: 0 } );
-		$scope.programs[$scope.currentProgram].functions[0].vars.push({ name: 'newVar'+ind, type: 'int', initialValue: 0, id: $scope.itemCount++ });
+		var ind = $scope.itemCount;
+		var id = "var"+$scope.itemCount++;
+		$scope.programs[$scope.currentProgram].functions[0].vars[id] = ({ name: 'newVar'+ind, type: 'int', initialValue: 0, id: id });
+	}
+	$scope.removeVarRec = function(nodes, id){
+		angular.forEach(nodes, function(node, key){
+
+			if(node.type=="write"){
+				if(node.variable==id){
+					node.variable = '';
+				}
+			}
+			if(node.nodes.length>0){
+				$scope.removeVarRec(node.nodes, id);
+			}
+		});
 	}
 	$scope.removeVar = function(v){
-		$scope.vars.splice($scope.vars.indexOf(v), 1);
+		$scope.removeVarRec($scope.programs[$scope.currentProgram].functions[0].nodes, v.id);
+		delete $scope.programs[$scope.currentProgram].functions[0].vars[v.id];
 	}
 	$scope.removeItem = function(parent, item){
 		parent.nodes.splice(parent.nodes.indexOf(item),1);
@@ -50,7 +63,47 @@ function IvProgCreateCtrl($scope, IvProgSource){
 	    data.nodes = [];
 	};
 	$scope.run = function(){
-		IvProgSource.generate($scope.programs[$scope.currentProgram]);
+		var code = $scope.genCode($scope.programs[$scope.currentProgram]);
+		console.log(code);
+		window.eval(code);
+	}
+	$scope.clearOutput = function(){
+		$(".output").html("");
+	}
+	$scope.genCode = function(funcs){
+		var strCode = "var t = function(){";
+		angular.forEach(funcs.functions, function(func, key){
+			strCode+= "function "+func.functionName+"(){";
+			angular.forEach(func.vars, function(variable, key){
+				strCode+="var var_"+variable.id+" = "+variable.initialValue+";";
+			});
+			var ordenador = $filter('orderBy');
+			console.log(ordenador(func.nodes, "order"));
+			// precisa ordenar os nodes
+			strCode+=$scope.genNode(func.nodes);
+			strCode+= "}";
+			if(func.type=="main"){
+				strCode+=func.functionName+"()";
+			}
+		});
+		strCode+="}; t();";
+		return strCode;
+	}
+	$scope.genNode = function(nodes){
+		var strCode = "";
+		angular.forEach(nodes, function(node, key){
+			if(node.type=="write"){
+				if(node.variable!=''){
+					strCode += "writer(";
+					strCode += "var_"+node.variable;
+					strCode += ");";
+				}
+			}
+			if(node.nodes.length>0){
+				strCode += $scope.genCode(node.nodes);
+			}
+		});
+		return strCode;
 	}
 	// considering add as IF
 	$scope.add = function(data, type, name) {
@@ -61,22 +114,34 @@ function IvProgCreateCtrl($scope, IvProgSource){
 	    	newData.varName = "newVar1";
 	    	newData.varValue = "0";
 	    }
+	    var order;
+	    if(data==null){
+	    	order = $scope.programs[$scope.currentProgram].functions[0].nodes.length;
+	    }else{
+		    order = data.nodes.length;
+		}
 	    var newNode = {
 		    				type: type,
 		    				name: name,
 		    				data: newData,
 		    				nodes: [],
-		    				parent: data
+		    				parent: data,
+		    				order: order
 		    			};
 		if(type=="write"){
-			newNode.variable = "aaa";
+			newNode.variable = "";
 		}
 	    if(data==null){
 	    	$scope.programs[$scope.currentProgram].functions[0].nodes.push( newNode);
 	    }else{
-		    data.nodes.push( newNode);
+		    data.nodes.push(newNode);
 		}
 	};
+
+	$scope.order = function(data, qt){
+		console.log(data);
+		data.order +=qt;
+	}
 
 }
 function IvProgAbertoCtrl($scope){
