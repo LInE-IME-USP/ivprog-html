@@ -99,9 +99,18 @@ function IvProgCreateCtrl($scope, IvProgSource, $filter){
 					strCode += ");";
 				}
 			}
-			if(node.nodes.length>0){
-				strCode += $scope.genCode(node.nodes);
+			if(node.type=="for"){
+				if(node.times>0){
+					strCode+= "for(var for_"+node.id+"=0; for_"+node.id+"<"+node.times+"; "+"for_"+node.id+"++){";
+					if(node.nodes.length>0){
+						strCode += $scope.genNode(node.nodes);
+					}
+					strCode+="}";
+				}
 			}
+			/*if(node.nodes.length>0){
+				strCode += $scope.genCode(node.nodes);
+			}*/
 		});
 		return strCode;
 	}
@@ -121,6 +130,7 @@ function IvProgCreateCtrl($scope, IvProgSource, $filter){
 		    order = data.nodes.length;
 		}
 	    var newNode = {
+	    					id: $scope.itemCount++,
 		    				type: type,
 		    				name: name,
 		    				data: newData,
@@ -130,6 +140,9 @@ function IvProgCreateCtrl($scope, IvProgSource, $filter){
 		    			};
 		if(type=="write"){
 			newNode.variable = "";
+		}
+		if(type=="for"){
+			newNode.times = 5;
 		}
 	    if(data==null){
 	    	$scope.programs[$scope.currentProgram].functions[0].nodes.push( newNode);

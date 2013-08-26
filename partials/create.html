@@ -24,16 +24,14 @@
     <span ng-include="'btns.html'"></span>
 </script>
 <script type="text/ng-template"  id="for.html">
-    <i class="icon-repeat"></i>
-    {{data.name}}  
-                    <select ng-model='teste'>
-                        <option ng-repeat="var in programs[currentProgram].functions[0].vars">{{var.name}}</option>
-                    </select> igual <input type="text" value="VAR">
-    <button class="btn pull-right" ng-click="removeItem(data.parent, data)"><i class="icon icon-trash"></i></button>
-    <button ng-click="delete(data)" ng-show="data.nodes.length > 0" class="btn">Limpar</button>
-    <span ng-include="'inner.html'"></span>
-    <span ng-include="'btns.html'"></span>
-
+    <div class="repeat">
+        <i class="icon-repeat"></i>
+        {{data.name}} <span edit-in-place='data.times'></span> vezes.
+        <button class="btn pull-right" ng-click="removeItem(data.parent, data)"><i class="icon icon-trash"></i></button>
+        <button ng-click="delete(data)" ng-show="data.nodes.length > 0" class="btn">Limpar</button>
+        <span ng-include="'inner.html'"></span>
+        <span ng-include="'btns.html'"></span>
+    </div>
 </script> 
 <script type="text/ng-template"  id="if.html">
     {{data.name}} 
@@ -49,7 +47,7 @@
 <script type="text/ng-template"  id="write.html">
     <div class="write">
         {{data.name}}
-        (<span select-variable="data.variable" select-model="data.variable" select-vars="programs[currentProgram].functions[0].vars"></span>)
+        (<span select-variable="data.variable" select-model="data.variable" select-vars="programs[currentProgram].functions[0].vars"></span> + )
         
         <div class="btn-group pull-right hide">
             <button ng-click="order(data, -1)" class="btn btn-mini">UP</button>
@@ -84,7 +82,7 @@
                 </div>
                 <div class="variables">
                     <h5><i class="icon icon-th-list" style="font-size: 14px;"></i> Variáveis locais <button class="btn" ng-click="addVar()"><i class="icon icon-plus"></i></button></h5>
-                    <span class="var" ng-repeat="var in func.vars">&nbsp;<span edit-in-place='var.name'></span> = <span edit-in-place='var.initialValue'></span> <span edit-in-place="var.opa" /> <div class="btn-group"><button class="btn btn-mini" ng-click="configVar(var)"><i class="icon icon-wrench"></i></button><button class="btn btn-mini" ng-click="removeVar(var)"><i class="icon icon-remove"></i></button></div></span>
+                    <span class="var" ng-repeat="var in func.vars">&nbsp;<span edit-in-place='var.name'></span> = <span edit-in-place='var.initialValue'></span> <div class="btn-group"><button class="btn btn-mini" ng-click="configVar(var)"><i class="icon icon-wrench"></i></button><button class="btn btn-mini" ng-click="removeVar(var)"><i class="icon icon-remove"></i></button></div></span>
                     <span class="clearfix"></span>
                 </div>
                 
@@ -94,6 +92,7 @@
                     <button ng-click="add(null, 'if', 'se')" class="btn">+ IF</button>
                     <button ng-click="add(null, 'read', 'ler')" class="btn">+R</button>
                     <button ng-click="add(null, 'write', 'escrever')" class="btn">+W</button>
+                    <button ng-click="add(null, 'for', 'repetir')" class="btn">+ FOR</button>
                 </ul>
 
             </div>
