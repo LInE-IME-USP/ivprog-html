@@ -33,6 +33,7 @@ ivProgApp.directive('editInPlacess', function($parse){
 		}
 	};
 });
+
 ivProgApp.directive('editInPlace', function() {
   return {
     restrict: 'A',

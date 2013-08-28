@@ -12,11 +12,59 @@ function IvProgCreateCtrl($scope, IvProgSource, $filter){
 							programName: "firstProgram.ivprog",
 							functions: [
 								{
-									functionName: "main",
-									vars: {},
-									params: [],
-									type: "main",
-									nodes: []
+									name: "main",
+									vars: {
+										"var_1":
+											{ name: 'newVar1', type: 'int', initialValue: 0, id: "var_1" }
+									},
+									params: {},
+									type: "main", // int, void, float
+									nodes: [
+										{
+					    					id: "attr_1",
+						    				type: "attr",
+						    				name: "attr",
+						    				parent: null,
+
+						    				variable: "var_1",
+						    				value: 0,
+						    				nodes: [
+						    					{
+								    				type: "value",
+								    				variable: "var_1",
+								    				value: 0,
+								    				nodes: [
+								    					{
+								    				type: "value",
+								    				variable: "var_1",
+								    				value: 0,
+								    				nodes: []
+								    			},
+								    			{
+								    				type: "op",
+								    				value: 1,
+								    			},
+								    			{
+								    				type: "value",
+								    				variable: "var_1",
+								    				value: 0,
+								    				nodes: []
+								    			}
+								    				]
+								    			},
+								    			{
+								    				type: "op",
+								    				value: 1,
+								    			},
+								    			{
+								    				type: "value",
+								    				variable: "var_1",
+								    				value: 0,
+								    				nodes: []
+								    			}
+						    				]
+						    			}
+									]
 								}
 							]
 						}];
@@ -114,48 +162,28 @@ function IvProgCreateCtrl($scope, IvProgSource, $filter){
 		});
 		return strCode;
 	}
-	// considering add as IF
-	$scope.add = function(data, type, name) {
-	    //var post = data.nodes.length + 1;
-	    //var newName = data.name + '-' + post;
-	    var newData = {};
-	    if(type=="var"){
-	    	newData.varName = "newVar1";
-	    	newData.varValue = "0";
-	    }
-	    var order;
-	    if(data==null){
-	    	order = $scope.programs[$scope.currentProgram].functions[0].nodes.length;
-	    }else{
-		    order = data.nodes.length;
-		}
+	
+	$scope.add = function(parent, type, name) {
 	    var newNode = {
 	    					id: $scope.itemCount++,
 		    				type: type,
 		    				name: name,
-		    				data: newData,
 		    				nodes: [],
-		    				parent: data,
-		    				order: order
+		    				parent: parent
 		    			};
+
+		// especifico de cada estrutura
 		if(type=="write"){
 			newNode.variable = "";
 		}
 		if(type=="for"){
 			newNode.times = 5;
 		}
-	    if(data==null){
-	    	$scope.programs[$scope.currentProgram].functions[0].nodes.push( newNode);
-	    }else{
-		    data.nodes.push(newNode);
+		if(type=="attr"){
+			newNode.variable = "";
 		}
+		parent.push(newNode);
 	};
-
-	$scope.order = function(data, qt){
-		console.log(data);
-		data.order +=qt;
-	}
-
 }
 function IvProgAbertoCtrl($scope){
   $scope.delete = function(data) {

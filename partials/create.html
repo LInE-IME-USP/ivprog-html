@@ -1,72 +1,105 @@
-<script type="text/ng-template"  id="btns.html">
-	<button ng-click="add(data, 'if', 'se')" class="btn">+ IF</button>
-	<button ng-click="add(data, 'var', 'var')" class="btn">+ VAR</button>
-    <button ng-click="add(data, 'write', 'escrever')" class="btn">+ WRITE</button>
-    <button ng-click="add(data, 'for', 'for')" class="btn">+ FOR</button>
+<script type="text/ng-template" id="btns.html">
+	<button ng-click="add(node.nodes, 'if', 'se')" class="btn">+ IF</button>
+    <button ng-click="add(node.nodes, 'write', 'escrever')" class="btn">+ WRITE</button>
+    <button ng-click="add(node.nodes, 'for', 'for')" class="btn">+ FOR</button>
+    <button ng-click="add(node.nodes, 'attr', 'attr')" class="btn">ATTR</button>
 </script>
 
-<script type="text/ng-template"  id="inner.html">
+<script type="text/ng-template"  id="nodes.html">
 	<ul>
-        <li ng-repeat="data in data.nodes|orderBy:order" ng-include="getTemplate(data)"></li>
+        <li ng-repeat="node in node.nodes" ng-include="getTemplate(node)"></li>
     </ul>
 </script>
 
 <script type="text/ng-template"  id="tree_item_renderer.html">
-    {{data.name}} {{data.type}}
-    <button ng-click="delete(data)" ng-show="data.nodes.length > 0" class="btn">Limpar</button>
-    <span ng-include="'inner.html'"></span>
+    {{node.name}} {{node.type}}
+    <button ng-click="delete(node)" ng-show="node.nodes.length > 0" class="btn">Limpar</button>
+    <span ng-include="'nodes.html'"></span>
     <span ng-include="btns.html"></span>
 </script>
+
 <script type="text/ng-template"  id="start.html">
-    {{data.name}} {{data.type}}
-    <button ng-click="delete(data)" ng-show="data.nodes.length > 0" class="btn">Limpar</button>
-    <span ng-include="'inner.html'"></span>
+    {{node.name}} {{node.type}}
+    <button ng-click="delete(node)" ng-show="node.nodes.length > 0" class="btn">Limpar</button>
+    <span ng-include="'nodes.html'"></span>
     <span ng-include="'btns.html'"></span>
 </script>
+
 <script type="text/ng-template"  id="for.html">
     <div class="repeat">
         <i class="icon-repeat"></i>
-        {{data.name}} <span edit-in-place='data.times'></span> vezes.
-        <button class="btn pull-right" ng-click="removeItem(data.parent, data)"><i class="icon icon-trash"></i></button>
-        <button ng-click="delete(data)" ng-show="data.nodes.length > 0" class="btn">Limpar</button>
-        <span ng-include="'inner.html'"></span>
+        {{node.name}} <span edit-in-place='node.times'></span> vezes.
+        <button class="btn pull-right" ng-click="removeItem(node.parent, node)"><i class="icon icon-trash"></i></button>
+        <button ng-click="delete(node)" ng-show="node.nodes.length > 0" class="btn">Limpar</button>
+        <span ng-include="'nodes.html'"></span>
         <span ng-include="'btns.html'"></span>
     </div>
 </script> 
 <script type="text/ng-template"  id="if.html">
-    {{data.name}} 
+    {{node.name}} 
                     <select ng-model='teste'>
                         <option ng-repeat="var in programs[currentProgram].functions[0].vars">{{var.name}}</option>
                     </select> igual <input type="text" value="VAR">
-    <button class="btn pull-right" ng-click="removeItem(data.parent, data)"><i class="icon icon-trash"></i></button>
-    <button ng-click="delete(data)" ng-show="data.nodes.length > 0" class="btn">Limpar</button>
-    <span ng-include="'inner.html'"></span>
+    <button class="btn pull-right" ng-click="removeItem(node.parent, node)"><i class="icon icon-trash"></i></button>
+    <button ng-click="delete(node)" ng-show="node.nodes.length > 0" class="btn">Limpar</button>
+    <span ng-include="'nodes.html'"></span>
     <span ng-include="'btns.html'"></span>
 
 </script>
 <script type="text/ng-template"  id="write.html">
     <div class="write">
-        {{data.name}}
-        (<span select-variable="data.variable" select-model="data.variable" select-vars="programs[currentProgram].functions[0].vars"></span> + )
+        {{node.name}}
+        (<span select-variable="node.variable" select-model="node.variable" select-vars="programs[currentProgram].functions[0].vars"></span> + )
         
-        <div class="btn-group pull-right hide">
-            <button ng-click="order(data, -1)" class="btn btn-mini">UP</button>
-            <button ng-click="order(data, 1)" class="btn btn-mini">DOWN</button>
-        </div>
-        <span class="badge badge-important pull-right" ng-show="data.variable==''"><i class="icon icon-exclamation"></i></span>
+        <span class="badge badge-important pull-right" ng-show="node.variable==''"><i class="icon icon-exclamation"></i></span>
     </div>  
 </script>
+
 <script type="text/ng-template"  id="var.html">
-    <i>{{data.name}}</i> <span edit-in-place='data.data.varName'></span> = <input type="text" value="VAR"> {{data.data.varName}}
-    <button ng-click="delete(data)" ng-show="data.nodes.length > 0">Delete nodes</button>
+    <i>{{node.name}}</i> <span edit-in-place='node.data.varName'></span> = <input type="text" value="VAR"> {{node.data.varName}}
 </script>
+
+<script type="text/ng-template"  id="attr_var.html">
+    (<span ng-repeat="node in node.nodes">
+        <span ng-show="node.nodes.length>0" ng-include="'attr_var.html'">
+        </span>
+        <span ng-show="node.type=='value'">
+            <span ng-show="node.nodes.length==0">
+                <span edit-in-place="node.value"></span>
+            </span>
+        </span>
+        <span ng-show="node.type=='op'">
+        +
+        </span>
+    </span>)
+</script>
+
+<script type="text/ng-template"  id="attr.html">
+    <div class="attr">
+    <span select-variable="node.variable" select-model="node.variable" select-vars="programs[currentProgram].functions[0].vars"></span> recebe o valor  
+            <span edit-in-place="node.value"></span>
+            <span ng-include="'attr_var.html'">as</span>
+            <span class="dropdown">
+                    <button class="btn btn-mini" data-toggle="dropdown"><i class="icon icon-align-justify"></i></button>
+                    <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                        <li class="divider"></li>
+                        <li><a role="menuitem" href="#">Somar</a></li>
+                        <li><a role="menuitem" href="#">Subtrair</a></li>
+                        <li><a role="menuitem" href="#">Dividir</a></li>
+                        <li><a role="menuitem" href="#">Multiplicar</a></li>
+                    </ul>
+            </span>
+
+    </div>
+</script>
+
 
 <div class="container">
     <ul class="nav nav-tabs">
         <li class="dropdown" ng-repeat="program in programs">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{program.programName}} <b class="caret"></b></a>
             <ul class="dropdown-menu">
-              <li ng-repeat="func in program.functions"><a href="#dropdown1" data-toggle="tab">{{func.functionName}}</a></li>
+              <li ng-repeat="func in program.functions"><a href="#dropdown1" data-toggle="tab">{{func.name}}</a></li>
               <li><a href="#dropdown1" data-toggle="tab">create a function</a></li>
               <li><a href="#dropdown1" data-toggle="tab">create a method</a></li>
             </ul>
@@ -87,12 +120,14 @@
                 </div>
                 
                 <ul>
-                    <li ng-repeat="data in programs[currentProgram].functions[0].nodes" ng-include="getTemplate(data)">
+                    <li ng-repeat="node in programs[currentProgram].functions[0].nodes" ng-include="getTemplate(node)">
                     </li>
-                    <button ng-click="add(null, 'if', 'se')" class="btn">+ IF</button>
-                    <button ng-click="add(null, 'read', 'ler')" class="btn">+R</button>
-                    <button ng-click="add(null, 'write', 'escrever')" class="btn">+W</button>
-                    <button ng-click="add(null, 'for', 'repetir')" class="btn">+ FOR</button>
+
+                    <button ng-click="add(programs[currentProgram].functions[0].nodes, 'if', 'se')" class="btn">+ IF</button>
+                    <button ng-click="add(programs[currentProgram].functions[0].nodes, 'read', 'ler')" class="btn">+R</button>
+                    <button ng-click="add(programs[currentProgram].functions[0].nodes, 'write', 'escrever')" class="btn">+W</button>
+                    <button ng-click="add(programs[currentProgram].functions[0].nodes, 'for', 'repetir')" class="btn">+ FOR</button>
+                    <button ng-click="add(programs[currentProgram].functions[0].nodes, 'attr', 'attr')" class="btn">ATTR</button>
                 </ul>
 
             </div>
