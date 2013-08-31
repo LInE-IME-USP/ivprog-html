@@ -59,34 +59,37 @@
     <i>{{node.name}}</i> <span edit-in-place='node.data.varName'></span> = <input type="text" value="VAR"> {{node.data.varName}}
 </script>
 
-<script type="text/ng-template"  id="attr_var.html">
-    (<span ng-repeat="node in node.nodes">
-        <span ng-show="node.nodes.length>0" ng-include="'attr_var.html'">
-        </span>
-        <span ng-show="node.type=='value'">
-            <span ng-show="node.nodes.length==0">
-                <span edit-in-place="node.value"></span>
-            </span>
-        </span>
-        <span ng-show="node.type=='op'">
-        +
-        </span>
+<script type="text/ng-template"  id="attr_var_exp.html">
+    <span ng-show="ex.t=='exp'">
+        (<span ng-repeat="ex in ex.exp" ng-include="'attr_var_exp.html'"></span> <span class="dropdown">
+            <button class="btn btn-mini" data-toggle="dropdown"><i class="icon icon-align-justify"></i></button>
+            <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                <li><a role="menuitem" ng-click="addElVar(ex.exp)">Variável</a></li>
+                <li><a role="menuitem" ng-click="addElVal(ex.exp)">Valor</a></li>
+            </ul>
     </span>)
+    </span>
+    <span ng-show="ex.t=='val'">
+        <span edit-in-place-value="ex.v"></span>
+    </span>
+    <span ng-show="ex.t=='var'">
+        <span select-variable-boot="ex.v" ex="ex" select-model="ex.v" select-vars="programs[currentProgram].functions[0].vars"></span>
+    </span>
+    <span ng-hide="$last">&nbsp;{{ex.o}}&nbsp;</span>
 </script>
 
 <script type="text/ng-template"  id="attr.html">
     <div class="attr">
-    <span select-variable="node.variable" select-model="node.variable" select-vars="programs[currentProgram].functions[0].vars"></span> recebe o valor  
+    <span select-variable="node.variable" select-model="node.variable" select-vars="programs[currentProgram].functions[0].vars"></span> recebe   
             <span edit-in-place="node.value"></span>
-            <span ng-include="'attr_var.html'">as</span>
+            <span ng-repeat="ex in node.exp">
+                <span ng-include="'attr_var_exp.html'"></span>
+            </span>
             <span class="dropdown">
                     <button class="btn btn-mini" data-toggle="dropdown"><i class="icon icon-align-justify"></i></button>
                     <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-                        <li class="divider"></li>
-                        <li><a role="menuitem" href="#">Somar</a></li>
-                        <li><a role="menuitem" href="#">Subtrair</a></li>
-                        <li><a role="menuitem" href="#">Dividir</a></li>
-                        <li><a role="menuitem" href="#">Multiplicar</a></li>
+                        <li><a role="menuitem" ng-click="addElVar(node.exp)">Variável</a></li>
+                        <li><a role="menuitem" ng-click="addElVal(node.exp)">Valor</a></li>
                     </ul>
             </span>
 

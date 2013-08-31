@@ -84,12 +84,11 @@ ivProgApp.directive('editInPlace', function() {
   };
 });
 
-ivProgApp.directive('selectVariable', function() {
+ivProgApp.directive('editInPlaceValue', function() {
   return {
     restrict: 'A',
-    scope: { value: '=selectVariable', model: '=selectModel', vars: '=selectVars' },
-    templatesss: '<span ng-click="edit()" ng-bind="value"></span><input ng-model="value" type="text" class="input" />',
-    template: '<span ng-click="edit()"><span ng-show="value==\'\'"><i>selecionar variável</i></span><span ng-hide="value==\'\'">{{vars[value].name}}</span></span><select ng-model="model">                        <option value="{{var.id}}" ng-repeat="var in vars">{{var.name}}</option></select>',
+    scope: { value: '=editInPlaceValue' },
+    template: '<span ng-click="edit()" ng-bind="value"><span ng-show="value==\'\'">sem valor</span></span><input ng-model="value" type="text" class="input" />',
     link: function ( $scope, element, attrs ) {
       // Let's get a reference to the input element, as we'll want to reference it.
       var inputElement = angular.element( element.children()[1] );
@@ -135,21 +134,24 @@ ivProgApp.directive('selectVariable', function() {
   };
 });
 
-ivProgApp.directive('editInPlacess', function() {
+ivProgApp.directive('selectVariable', function() {
   return {
-    restrict: 'E',
-    scope: { value: '=' },
-    template: '<span ng-click="edit()" ng-bind="value"></span><input ng-model="value"></input>',
+    restrict: 'A',
+    scope: { value: '=selectVariable', model: '=selectModel', vars: '=selectVars' },
+    template: '<span class="dropdown select-variable-value" ng-class="{\'need-to-set\': value==\'\'}"><a id="drop1" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown"><span ng-show="value==\'\'"><i>selecionar variável</i></span><span ng-hide="value==\'\'">{{vars[value].name}}</span> <b class="caret"></b></a><ul class="dropdown-menu" role="menu" aria-labelledby="drop1"><li ng-repeat="var in vars"><a ng-click="setValue(var.id)">{{var.name}}</a></li></ul></span></span>',
     link: function ( $scope, element, attrs ) {
       // Let's get a reference to the input element, as we'll want to reference it.
       var inputElement = angular.element( element.children()[1] );
       
       // This directive should have a set class so we can style it.
-      element.addClass('edit-in-place');
+      //element.addClass('edit-in-place');
       
       // Initially, we're not editing.
       $scope.editing = false;
-      
+
+      $scope.setValue = function(v){
+        $scope.value = v;
+      }
       // ng-click handler to activate edit-in-place
       $scope.edit = function () {
         $scope.editing = true;
@@ -162,12 +164,145 @@ ivProgApp.directive('editInPlacess', function() {
         // we have to reference the first element in the array.
         inputElement[0].focus();
       };
-      
-      // When we leave the input, we're done editing.
-      inputElement.prop('onblur', function() {
-        $scope.editing = false;
-        element.removeClass( 'active' );
+      $(element).mouseout(function(){
+        $(this).removeClass("over");
       });
+      $(element).mouseover(function(){
+        $(this).addClass("over");
+      });
+      $(inputElement).keyup(function(e){
+        if(e.keyCode==13){
+          $scope.editing = false;
+          element.removeClass('active');
+          element.removeClass('over');
+        }
+      });
+      // When we leave the input, we're done editing.
+      $(inputElement).blur(function(){
+        $scope.editing = false;
+        element.removeClass('active');
+      });
+      
     }
   };
 });
+
+ivProgApp.directive('selectOperator', function() {
+  return {
+    restrict: 'A',
+    scope: { value: '=selectVariable', model: '=selectModel', vars: '=selectVars' },
+    template: '<span class="dropdown select-variable-value" ng-class="{\'need-to-set\': value==\'\'}"><a id="drop1" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown"><span ng-show="value==\'\'"><i>selecionar variável</i></span><span ng-hide="value==\'\'">{{vars[value].name}}</span> <b class="caret"></b></a><ul class="dropdown-menu" role="menu" aria-labelledby="drop1"><li ng-repeat="var in vars"><a ng-click="setValue(var.id)">{{var.name}}</a></li></ul></span></span>',
+    link: function ( $scope, element, attrs ) {
+      // Let's get a reference to the input element, as we'll want to reference it.
+      var inputElement = angular.element( element.children()[1] );
+      
+      // This directive should have a set class so we can style it.
+      //element.addClass('edit-in-place');
+      
+      // Initially, we're not editing.
+      $scope.editing = false;
+      
+      $scope.setValue = function(v){
+        $scope.value = v;
+      }
+      // ng-click handler to activate edit-in-place
+      $scope.edit = function () {
+        $scope.editing = true;
+        
+        // We control display through a class on the directive itself. See the CSS.
+        element.addClass( 'active' );
+        
+        // And we must focus the element. 
+        // `angular.element()` provides a chainable array, like jQuery so to access a native DOM function, 
+        // we have to reference the first element in the array.
+        inputElement[0].focus();
+      };
+      $(element).mouseout(function(){
+        $(this).removeClass("over");
+      });
+      $(element).mouseover(function(){
+        $(this).addClass("over");
+      });
+      $(inputElement).keyup(function(e){
+        if(e.keyCode==13){
+          $scope.editing = false;
+          element.removeClass('active');
+          element.removeClass('over');
+        }
+      });
+      // When we leave the input, we're done editing.
+      $(inputElement).blur(function(){
+        $scope.editing = false;
+        element.removeClass('active');
+      });
+      
+    }
+  };
+});
+
+ivProgApp.directive('selectVariableBoot', function() {
+  return {
+    restrict: 'A',
+    scope: { ex: '=ex', value: '=selectVariableBoot', model: '=selectModel', vars: '=selectVars' },
+    template: '<span class="dropdown select-variable-value" ng-class="{\'need-to-set\': value==\'\'}"><a id="drop1" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown"><span ng-show="value==\'\'"><i>selecionar variável</i></span><span ng-hide="value==\'\'">{{vars[value].name}}</span> <b class="caret"></b></a><ul class="dropdown-menu" role="menu" aria-labelledby="drop1"><li ng-repeat="var in vars"><a ng-click="setValue(var.id)">{{var.name}}</a></li><li class="divider"></li><li><a ng-click="removeItem(ex)">Remover item</a></li><li><a ng-click="convertToValue(ex)">Converter para valor</a></li><li><a ng-click="isolar(ex)">Isolar</a></li></ul></span></span>',
+    link: function ( $scope, element, attrs ) {
+      // Let's get a reference to the input element, as we'll want to reference it.
+      var inputElement = angular.element( element.children()[1] );
+      
+      // This directive should have a set class so we can style it.
+      //element.addClass('edit-in-place');
+      
+      // Initially, we're not editing.
+      $scope.editing = false;
+      
+      $scope.setValue = function(v){
+        $scope.value = v;
+      }
+      $scope.isolar = function(item){
+        item.t = "exp";
+        item.v = "";
+        item.exp = [];
+      }
+      $scope.convertToValue = function(item){
+        item.t = "val";
+        item.v = 0;
+      }
+      $scope.removeItem = function(v){
+        v.p.splice(v.p.indexOf(v), 1);
+      }
+
+      // ng-click handler to activate edit-in-place
+      $scope.edit = function () {
+        $scope.editing = true;
+        
+        // We control display through a class on the directive itself. See the CSS.
+        element.addClass( 'active' );
+        
+        // And we must focus the element. 
+        // `angular.element()` provides a chainable array, like jQuery so to access a native DOM function, 
+        // we have to reference the first element in the array.
+        inputElement[0].focus();
+      };
+      $(element).mouseout(function(){
+        $(this).removeClass("over");
+      });
+      $(element).mouseover(function(){
+        $(this).addClass("over");
+      });
+      $(inputElement).keyup(function(e){
+        if(e.keyCode==13){
+          $scope.editing = false;
+          element.removeClass('active');
+          element.removeClass('over');
+        }
+      });
+      // When we leave the input, we're done editing.
+      $(inputElement).blur(function(){
+        $scope.editing = false;
+        element.removeClass('active');
+      });
+      
+    }
+  };
+});
+

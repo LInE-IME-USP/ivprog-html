@@ -13,61 +13,56 @@ function IvProgCreateCtrl($scope, IvProgSource, $filter){
 							functions: [
 								{
 									name: "main",
-									vars: {
+									vars: {},
+									varss: {
 										"var_1":
 											{ name: 'newVar1', type: 'int', initialValue: 0, id: "var_1" }
 									},
 									params: {},
 									type: "main", // int, void, float
-									nodes: [
+									nodes:[],
+									nodess: [
 										{
 					    					id: "attr_1",
 						    				type: "attr",
 						    				name: "attr",
 						    				parent: null,
-
-						    				variable: "var_1",
-						    				value: 0,
-						    				nodes: [
-						    					{
-								    				type: "value",
-								    				variable: "var_1",
-								    				value: 0,
-								    				nodes: [
-								    					{
-								    				type: "value",
-								    				variable: "var_1",
-								    				value: 0,
-								    				nodes: []
-								    			},
-								    			{
-								    				type: "op",
-								    				value: 1,
-								    			},
-								    			{
-								    				type: "value",
-								    				variable: "var_1",
-								    				value: 0,
-								    				nodes: []
-								    			}
-								    				]
-								    			},
-								    			{
-								    				type: "op",
-								    				value: 1,
-								    			},
-								    			{
-								    				type: "value",
-								    				variable: "var_1",
-								    				value: 0,
-								    				nodes: []
-								    			}
-						    				]
+						    				variable: "",
+						    				exp: []
 						    			}
 									]
 								}
 							]
 						}];
+
+	$scope.addElVar = function(v){
+		v.push({
+						t: "var",
+						v: "",
+						o: "+",
+						p: v
+					});
+	}
+	$scope.addElVal = function(v){
+		v.push({
+						t: "val",
+						v: 0,
+						o: "+",
+						p: v
+					});
+	}
+	$scope.isolar = function(item){
+		item.t = "exp";
+		item.v = "";
+		item.exp = [];
+		console.log(item);
+		//item.v.push({t: "val", v: "a", o: "+"});
+	}
+	$scope.addExp = function(parent){
+		parent.push({ t: "val", v: "a", o: "+"});
+		//$scope.programs[$scope.currentProgram].functions[0].nodes[0].exp.push({t:"val", v: "teste", o: "+"});
+	}
+	
 
 	$scope.getTemplate = function(x){
 		return x.type+'.html';
@@ -121,7 +116,7 @@ function IvProgCreateCtrl($scope, IvProgSource, $filter){
 	$scope.genCode = function(funcs){
 		var strCode = "var t = function(){";
 		angular.forEach(funcs.functions, function(func, key){
-			strCode+= "function "+func.functionName+"(){";
+			strCode+= "function "+func.name+"(){";
 			angular.forEach(func.vars, function(variable, key){
 				strCode+="var var_"+variable.id+" = "+variable.initialValue+";";
 			});
@@ -131,7 +126,7 @@ function IvProgCreateCtrl($scope, IvProgSource, $filter){
 			strCode+=$scope.genNode(func.nodes);
 			strCode+= "}";
 			if(func.type=="main"){
-				strCode+=func.functionName+"()";
+				strCode+=func.name+"()";
 			}
 		});
 		strCode+="}; t();";
@@ -156,9 +151,31 @@ function IvProgCreateCtrl($scope, IvProgSource, $filter){
 					strCode+="}";
 				}
 			}
+			if(node.type=="attr"){
+				strCode+=" var_"+node.variable+"=";
+				strCode+="("+$scope.genExp(node.exp)+")";
+				strCode+=";";
+			}
 			/*if(node.nodes.length>0){
 				strCode += $scope.genCode(node.nodes);
 			}*/
+		});
+		return strCode;
+	}
+	$scope.genExp = function(exp){
+		var strCode = "";
+		
+		angular.forEach(exp, function(ex, key){
+			if(ex.t=="var"){
+				strCode+=" var_"+ex.v+" ";
+			}else if(ex.t=="val"){
+				strCode+=" "+ex.v+" ";
+			}else if(ex.t=="exp"){
+				strCode+=" ( "+$scope.genExp(ex.exp)+" ) ";
+			}
+			if(key<exp.length-1){
+				strCode+=ex.o;
+			}
 		});
 		return strCode;
 	}
@@ -180,7 +197,10 @@ function IvProgCreateCtrl($scope, IvProgSource, $filter){
 			newNode.times = 5;
 		}
 		if(type=="attr"){
+			newNode.id = "attr_"+newNode.id;
 			newNode.variable = "";
+			newNode.exp = [];
+			delete newNode.nodes;
 		}
 		parent.push(newNode);
 	};
