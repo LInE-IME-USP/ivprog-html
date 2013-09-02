@@ -190,8 +190,8 @@ ivProgApp.directive('selectVariable', function() {
 ivProgApp.directive('selectOperator', function() {
   return {
     restrict: 'A',
-    scope: { value: '=selectVariable', model: '=selectModel', vars: '=selectVars' },
-    template: '<span class="dropdown select-variable-value" ng-class="{\'need-to-set\': value==\'\'}"><a id="drop1" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown"><span ng-show="value==\'\'"><i>selecionar variável</i></span><span ng-hide="value==\'\'">{{vars[value].name}}</span> <b class="caret"></b></a><ul class="dropdown-menu" role="menu" aria-labelledby="drop1"><li ng-repeat="var in vars"><a ng-click="setValue(var.id)">{{var.name}}</a></li></ul></span></span>',
+    scope: { value: '=selectOperator', model: '=selectModel', vars: '=selectVars' },
+    template: '<span class="dropdown select-variable-value" ng-class="{\'need-to-set\': value==\'\'}"><a id="drop1" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown"><span ng-show="value==\'\'"><i>selecionar operação</i></span><span ng-hide="value==\'\'">{{value}}</span> <b class="caret"></b></a><ul class="dropdown-menu" role="menu" aria-labelledby="drop1"><li ng-repeat="op in operators"><a ng-click="setValue(op)">{{op}}</a></li></ul></span></span>',
     link: function ( $scope, element, attrs ) {
       // Let's get a reference to the input element, as we'll want to reference it.
       var inputElement = angular.element( element.children()[1] );
@@ -199,6 +199,14 @@ ivProgApp.directive('selectOperator', function() {
       // This directive should have a set class so we can style it.
       //element.addClass('edit-in-place');
       
+      $scope.operators = {
+        "+": "+",
+        "-": "-",
+        "/": "/",
+        "*": "*",
+        "%": "%"
+      };
+
       // Initially, we're not editing.
       $scope.editing = false;
       

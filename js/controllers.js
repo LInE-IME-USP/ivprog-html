@@ -90,8 +90,10 @@ function IvProgCreateCtrl($scope, IvProgSource, $filter){
 					node.variable = '';
 				}
 			}
-			if(node.nodes.length>0){
-				$scope.removeVarRec(node.nodes, id);
+			if(node.type!="attr"){
+				if(node.nodes.length>0){
+					$scope.removeVarRec(node.nodes, id);
+				}
 			}
 		});
 	}

@@ -75,7 +75,7 @@
     <span ng-show="ex.t=='var'">
         <span select-variable-boot="ex.v" ex="ex" select-model="ex.v" select-vars="programs[currentProgram].functions[0].vars"></span>
     </span>
-    <span ng-hide="$last">&nbsp;{{ex.o}}&nbsp;</span>
+    <span ng-hide="$last">&nbsp;<span select-operator="ex.o" ex="ex" select-model="ex.v" select-vars="programs[currentProgram].functions[0].vars"></span>&nbsp;</span>
 </script>
 
 <script type="text/ng-template"  id="attr.html">
