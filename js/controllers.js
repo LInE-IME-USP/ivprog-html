@@ -102,8 +102,22 @@ function IvProgCreateCtrl($scope, IvProgSource, $filter){
 		delete $scope.programs[$scope.currentProgram].functions[0].vars[v.id];
 	}
 	$scope.removeItem = function(parent, item){
-		parent.nodes.splice(parent.nodes.indexOf(item),1);
+		//parent.nodes.splice(parent.nodes.indexOf(item),1);
+		parent.splice(parent.indexOf(item),1);
 	}
+	$scope.isValidAttr = function(attr){
+		var isValid = true;
+		angular.forEach(attr, function(a, k){
+			if(a.type=="var"){
+
+			}
+		});
+		console.log(attr);
+		return false;
+	}
+	$scope.sortableOptions = {
+	    handle: '.handle'
+	};
 	$scope.delete = function(data) {
 	    data.nodes = [];
 	};

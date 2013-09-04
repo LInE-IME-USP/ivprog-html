@@ -1,4 +1,4 @@
-var ivProgApp = angular.module('ivprog', ['ivprogServices']);
+var ivProgApp = angular.module('ivprog', ['ivprogServices', 'ui']);
 
 ivProgApp.config(['$routeProvider', function($routeProvider) {
   $routeProvider.

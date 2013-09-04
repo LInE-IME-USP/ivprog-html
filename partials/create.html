@@ -1,12 +1,12 @@
 <script type="text/ng-template" id="btns.html">
-	<button ng-click="add(node.nodes, 'if', 'se')" class="btn">+ IF</button>
-    <button ng-click="add(node.nodes, 'write', 'escrever')" class="btn">+ WRITE</button>
-    <button ng-click="add(node.nodes, 'for', 'for')" class="btn">+ FOR</button>
-    <button ng-click="add(node.nodes, 'attr', 'attr')" class="btn">ATTR</button>
+	<button ng-click="add(node.nodes, 'if', 'se')" class="btn">Condição</button>
+    <button ng-click="add(node.nodes, 'write', 'escrever')" class="btn">Escrever</button>
+    <button ng-click="add(node.nodes, 'for', 'for')" class="btn">Repetir</button>
+    <button ng-click="add(node.nodes, 'attr', 'attr')" class="btn">Atribuição</button>
 </script>
 
 <script type="text/ng-template"  id="nodes.html">
-	<ul>
+	<ul ui:sortable="sortableOptions" ng:model="node.nodes">
         <li ng-repeat="node in node.nodes" ng-include="getTemplate(node)"></li>
     </ul>
 </script>
@@ -27,7 +27,7 @@
 
 <script type="text/ng-template"  id="for.html">
     <div class="repeat">
-        <i class="icon-repeat"></i>
+        <div class="handle"><i class="icon-sort"></i></div>
         {{node.name}} <span edit-in-place='node.times'></span> vezes.
         <button class="btn pull-right" ng-click="removeItem(node.parent, node)"><i class="icon icon-trash"></i></button>
         <button ng-click="delete(node)" ng-show="node.nodes.length > 0" class="btn">Limpar</button>
@@ -48,8 +48,9 @@
 </script>
 <script type="text/ng-template"  id="write.html">
     <div class="write">
+    <div class="handle"><i class="icon-sort"></i></div>
         {{node.name}}
-        (<span select-variable="node.variable" select-model="node.variable" select-vars="programs[currentProgram].functions[0].vars"></span> + )
+        (<span select-variable="node.variable" select-model="node.variable" select-vars="programs[currentProgram].functions[0].vars"></span>)
         
         <span class="badge badge-important pull-right" ng-show="node.variable==''"><i class="icon icon-exclamation"></i></span>
     </div>  
@@ -80,6 +81,7 @@
 
 <script type="text/ng-template"  id="attr.html">
     <div class="attr">
+    <button class="btn pull-right" ng-click="removeItem(node.parent, node)"><i class="icon icon-trash"></i></button>
     <span select-variable="node.variable" select-model="node.variable" select-vars="programs[currentProgram].functions[0].vars"></span> recebe   
             <span edit-in-place="node.value"></span>
             <span ng-repeat="ex in node.exp">
@@ -94,6 +96,7 @@
             </span>
 
     </div>
+    <span class="badge badge-important pull-right" ng-show="isValidAttr(node.exp)"><i class="icon icon-exclamation"></i></span>
 </script>
 
 
@@ -122,16 +125,20 @@
                     <span class="clearfix"></span>
                 </div>
                 
-                <ul>
-                    <li ng-repeat="node in programs[currentProgram].functions[0].nodes" ng-include="getTemplate(node)">
+                <ul ui:sortable="sortableOptions" ng:model="programs[currentProgram].functions[0].nodes">
+                    <li ng-repeat="node in programs[currentProgram].functions[0].nodes" ng-include="getTemplate(node)" ng-animate=" 'animate' ">
                     </li>
-
-                    <button ng-click="add(programs[currentProgram].functions[0].nodes, 'if', 'se')" class="btn">+ IF</button>
-                    <button ng-click="add(programs[currentProgram].functions[0].nodes, 'read', 'ler')" class="btn">+R</button>
-                    <button ng-click="add(programs[currentProgram].functions[0].nodes, 'write', 'escrever')" class="btn">+W</button>
-                    <button ng-click="add(programs[currentProgram].functions[0].nodes, 'for', 'repetir')" class="btn">+ FOR</button>
-                    <button ng-click="add(programs[currentProgram].functions[0].nodes, 'attr', 'attr')" class="btn">ATTR</button>
                 </ul>
+                <div class="addButtons">
+                    <button class="btn" onclick="$('#addBtns1').fadeToggle();"><i class="icon icon-plus"></i></button>
+                    <div class="btn-group hide" id="addBtns1">
+                        <button ng-click="add(programs[currentProgram].functions[0].nodes, 'if', 'se')" class="btn">Condição</button>
+                        <button ng-click="add(programs[currentProgram].functions[0].nodes, 'read', 'ler')" class="btn">Ler</button>
+                        <button ng-click="add(programs[currentProgram].functions[0].nodes, 'write', 'escrever')" class="btn">Escrever</button>
+                        <button ng-click="add(programs[currentProgram].functions[0].nodes, 'for', 'repetir')" class="btn">Repetir</button>
+                        <button ng-click="add(programs[currentProgram].functions[0].nodes, 'attr', 'attr')" class="btn">Atribuição</button>
+                    </div>
+                </div>
 
             </div>
         </div>

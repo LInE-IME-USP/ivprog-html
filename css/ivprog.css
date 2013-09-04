@@ -158,7 +158,10 @@
   float: left;
 }
 
-
+.addButtons{
+  margin: 10px;
+  padding: 3px 10px 10px 3px;
+}
 .source, .output{
   background: #6E6E6E;
   margin: 5px;
@@ -192,11 +195,23 @@
   border: 1px solid #AEAEAE;
 }
 .ivprog .attr{
-  background: #FFCCFF;
+  background: #EFEFEF;
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   border-radius: 5px;
   margin: 10px;
   padding: 10px 10px 10px 10px;
   border: 1px solid #AEAEAE;
+}
+
+.handle{
+  height: 20px;
+  width: 20px;
+  margin: 0px 5px 20px -5px;
+  float: left;
+  background: #EFEFEF;
+  cursor: move;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
 }
