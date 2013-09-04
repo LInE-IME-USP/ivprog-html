@@ -26,7 +26,7 @@ ivProgApp.directive('editInPlacess', function($parse){
 				title: 'Alterar nome da variável',
 				success: function(response, newValue) {
 					//console.log("Resp: "+response+"NV: "+newValue);
-					console.log("OPA");
+					//console.log("OPA");
 					//userModel.set('username', newValue); //update backbone model
 				}
 			});

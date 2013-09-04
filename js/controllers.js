@@ -55,7 +55,7 @@ function IvProgCreateCtrl($scope, IvProgSource, $filter){
 		item.t = "exp";
 		item.v = "";
 		item.exp = [];
-		console.log(item);
+		//console.log(item);
 		//item.v.push({t: "val", v: "a", o: "+"});
 	}
 	$scope.addExp = function(parent){
@@ -112,7 +112,7 @@ function IvProgCreateCtrl($scope, IvProgSource, $filter){
 
 			}
 		});
-		console.log(attr);
+		//console.log(attr);
 		return false;
 	}
 	$scope.sortableOptions = {
@@ -123,7 +123,7 @@ function IvProgCreateCtrl($scope, IvProgSource, $filter){
 	};
 	$scope.run = function(){
 		var code = $scope.genCode($scope.programs[$scope.currentProgram]);
-		console.log(code);
+		//console.log(code);
 		window.eval(code);
 	}
 	$scope.clearOutput = function(){
@@ -137,7 +137,7 @@ function IvProgCreateCtrl($scope, IvProgSource, $filter){
 				strCode+="var var_"+variable.id+" = "+variable.initialValue+";";
 			});
 			var ordenador = $filter('orderBy');
-			console.log(ordenador(func.nodes, "order"));
+			//console.log(ordenador(func.nodes, "order"));
 			// precisa ordenar os nodes
 			strCode+=$scope.genNode(func.nodes);
 			strCode+= "}";
