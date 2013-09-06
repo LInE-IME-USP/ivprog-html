@@ -99,7 +99,7 @@
   display: none;
 }
 
-.edit-in-place.active span {
+.edit-in-place.active span.normal {
   display: none;
 }
 
@@ -209,6 +209,7 @@
   width: 20px;
   margin: 0px 5px 20px -5px;
   float: left;
+  text-align: center;
   background: #EFEFEF;
   cursor: move;
   -webkit-border-radius: 5px;

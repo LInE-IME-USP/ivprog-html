@@ -38,11 +38,14 @@ ivProgApp.directive('editInPlace', function() {
   return {
     restrict: 'A',
     scope: { value: '=editInPlace' },
-    template: '<span ng-click="edit()" ng-bind="value"></span><input ng-model="value" type="text" class="input" />',
+    template: '<span ng-click="edit()" ng-bind="value" class="normal"></span><span class="control-group"><input ng-model="value" type="text" class="input" /></span>',
     link: function ( $scope, element, attrs ) {
+      console.log($scope.rule);
       // Let's get a reference to the input element, as we'll want to reference it.
-      var inputElement = angular.element( element.children()[1] );
-      
+      //var inputElement = angular.element( element.children()[1] );
+      var inputElement = $(element).find("input");
+      var spanControlGroup = $(element).find(".control-group");
+
       // This directive should have a set class so we can style it.
       element.addClass('edit-in-place');
       
@@ -69,16 +72,99 @@ ivProgApp.directive('editInPlace', function() {
       });
       $(inputElement).keyup(function(e){
         if(e.keyCode==13){
-          $scope.editing = false;
-          element.removeClass('active');
-          element.removeClass('over');
+          if($scope.isValid($scope.value)){
+            $scope.editing = false;
+            element.removeClass('active');
+            element.removeClass('over');
+            $(spanControlGroup).removeClass("error");
+          }else{
+             $(spanControlGroup).addClass("error");
+          }
         }
       });
       // When we leave the input, we're done editing.
       $(inputElement).blur(function(){
-      	$scope.editing = false;
-        element.removeClass('active');
+        if($scope.isValid($scope.value)){
+      	   $scope.editing = false;
+           element.removeClass('active');
+           $(spanControlGroup).removeClass("error");
+        }else{
+          $(spanControlGroup).addClass("error");
+        }
       });
+      //$scope.variableNamePattern = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
+      $scope.isValid = function(value){
+        return true;
+        var VAR_NAME = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
+        return VAR_NAME.test(value);
+      }
+      
+    }
+  };
+});
+
+ivProgApp.directive('editInPlaceVarName', function() {
+  return {
+    restrict: 'A',
+    scope: { value: '=editInPlaceVarName' },
+    template: '<span ng-click="edit()" ng-bind="value" class="normal"></span><span class="control-group"><input ng-model="value" type="text" class="input" /></span>',
+    link: function ( $scope, element, attrs ) {
+      console.log($scope.rule);
+      // Let's get a reference to the input element, as we'll want to reference it.
+      var inputElement = $(element).find("input");
+      var spanControlGroup = $(element).find(".control-group");
+
+      // This directive should have a set class so we can style it.
+      element.addClass('edit-in-place');
+      
+      // Initially, we're not editing.
+      $scope.editing = false;
+      
+      // ng-click handler to activate edit-in-place
+      $scope.edit = function () {
+        $scope.editing = true;
+        
+        // We control display through a class on the directive itself. See the CSS.
+        element.addClass( 'active' );
+        
+        // And we must focus the element. 
+        // `angular.element()` provides a chainable array, like jQuery so to access a native DOM function, 
+        // we have to reference the first element in the array.
+        inputElement[0].focus();
+      };
+      $(element).mouseout(function(){
+        $(this).removeClass("over");
+      });
+      $(element).mouseover(function(){
+        $(this).addClass("over");
+      });
+      $(inputElement).keyup(function(e){
+        if(e.keyCode==13){
+          if($scope.isValid($scope.value)){
+            $scope.editing = false;
+            element.removeClass('active');
+            element.removeClass('over');
+            $(spanControlGroup).removeClass("error");
+          }else{
+             $(spanControlGroup).addClass("error");
+          }
+        }
+      });
+      // When we leave the input, we're done editing.
+      $(inputElement).blur(function(){
+        if($scope.isValid($scope.value)){
+           $scope.editing = false;
+           element.removeClass('active');
+           $(spanControlGroup).removeClass("error");
+        }else{
+          $(spanControlGroup).addClass("error");
+        }
+      });
+      //$scope.variableNamePattern = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
+      $scope.isValid = function(value){
+        var VAR_NAME = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
+        return VAR_NAME.test(value);
+      }
       
     }
   };
@@ -314,3 +400,22 @@ ivProgApp.directive('selectVariableBoot', function() {
   };
 });
 
+var INTEGER_REGEXP = /^\-?\d*$/;
+ivProgApp.directive('integer', function() {
+  return {
+    require: 'ngModel',
+    link: function(scope, elm, attrs, ctrl) {
+      ctrl.$parsers.unshift(function(viewValue) {
+      if (INTEGER_REGEXP.test(viewValue)) {
+        // it is valid
+        ctrl.$setValidity('integer', true);
+        return viewValue;
+      } else {
+        // it is invalid, return undefined (no model update)
+        ctrl.$setValidity('integer', false);
+        return undefined;
+      }
+    });
+    }
+  };
+});

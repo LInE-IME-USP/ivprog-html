@@ -50,6 +50,7 @@
     <div class="write">
     <div class="handle"><i class="icon-sort"></i></div>
         {{node.name}}
+        <button class="btn pull-right" ng-click="removeItem(node.parent, node)"><i class="icon icon-trash"></i></button>
         (<span select-variable="node.variable" select-model="node.variable" select-vars="programs[currentProgram].functions[0].vars"></span>)
         
         <span class="badge badge-important pull-right" ng-show="node.variable==''"><i class="icon icon-exclamation"></i></span>
@@ -81,6 +82,7 @@
 
 <script type="text/ng-template"  id="attr.html">
     <div class="attr">
+    <div class="handle"><i class="icon-sort"></i></div>
     <button class="btn pull-right" ng-click="removeItem(node.parent, node)"><i class="icon icon-trash"></i></button>
     <span select-variable="node.variable" select-model="node.variable" select-vars="programs[currentProgram].functions[0].vars"></span> recebe   
             <span edit-in-place="node.value"></span>
@@ -121,7 +123,7 @@
                 </div>
                 <div class="variables">
                     <h5><i class="icon icon-th-list" style="font-size: 14px;"></i> Variáveis locais <button class="btn" ng-click="addVar()"><i class="icon icon-plus"></i></button></h5>
-                    <span class="var" ng-repeat="var in func.vars">&nbsp;<span edit-in-place='var.name'></span> = <span edit-in-place='var.initialValue'></span> <div class="btn-group"><button class="btn btn-mini" ng-click="configVar(var)"><i class="icon icon-wrench"></i></button><button class="btn btn-mini" ng-click="removeVar(var)"><i class="icon icon-remove"></i></button></div></span>
+                    <span class="var" ng-repeat="var in func.vars">&nbsp;<span edit-in-place-var-name='var.name'></span> = <span edit-in-place='var.initialValue'></span> <div class="btn-group"><button class="btn btn-mini" ng-click="configVar(var)"><i class="icon icon-wrench"></i></button><button class="btn btn-mini" ng-click="removeVar(var)"><i class="icon icon-remove"></i></button></div></span>
                     <span class="clearfix"></span>
                 </div>
                 
@@ -145,8 +147,9 @@
         <div class="span6">
             <h4>Source</h4>
             <div class="source">
+                <span class="comment">// seu programa em código C</span><br />
                 <div class="variables">
-                    <i>var</i><span class="var" ng-repeat="var in vars"> &nbsp;<b>{{var.name}}</b> = {{var.initialValue}}<span ng-show="vars.length>1&&$index<vars.length-1">,</span></span><span ng-show="vars.length>1">;</span>
+                    <i ng-hide="programs[currentProgram].functions[0].vars.length==0">var</i><span ng-show="vars.length>1">;</span> <span class="var" ng-repeat="var in programs[currentProgram].functions[0].vars"> <b>{{var.name}}</b> : {{var.type}} = {{var.initialValue}}<span ng-hide="$last">,</span><span ng-show="$last">;</span></span>
                 </div>
             </div>
             <h4>Output</h4>
