@@ -6,12 +6,12 @@ function IvProgCreateCtrl($scope, IvProgSource, $filter){
 	$scope.vars = [];
 	$scope.params = [];
 
-	$scope.currentProgram = 0;
-	$scope.programs = [
-						{ 
-							programName: "firstProgram.ivprog",
+	$scope.currentFunction = 0;
+	$scope.program = { 
+							programName: "firstProgram",
 							functions: [
 								{
+									isMain: true,
 									name: "main",
 									vars: {},
 									varss: {
@@ -31,9 +31,35 @@ function IvProgCreateCtrl($scope, IvProgSource, $filter){
 						    				exp: []
 						    			}
 									]
+								},
+								{
+									isMain: false,
+									name: "fatorial",
+									vars: {},
+									varss: {
+										"var_1":
+											{ name: 'newVar1', type: 'int', initialValue: 0, id: "var_1" }
+									},
+									params: {},
+									type: "int", // int, void, float
+									nodes:[],
+									nodess: [
+										{
+					    					id: "attr_1",
+						    				type: "attr",
+						    				name: "attr",
+						    				parent: null,
+						    				variable: "",
+						    				exp: []
+						    			}
+									]
 								}
 							]
-						}];
+						};
+
+	$scope.setCurrentFunction = function(ind){
+		$scope.currentFunction = ind;
+	}
 
 	$scope.addElVar = function(v){
 		v.push({
@@ -77,10 +103,13 @@ function IvProgCreateCtrl($scope, IvProgSource, $filter){
 	$scope.removeParam = function(v){
 		$scope.params.splice($scope.params.indexOf(v), 1);
 	}
+	$scope.varSetType = function(v, type){
+		v.type = type;
+	}
 	$scope.addVar = function(){
 		var ind = $scope.itemCount;
 		var id = "var"+$scope.itemCount++;
-		$scope.programs[$scope.currentProgram].functions[0].vars[id] = ({ name: 'newVar'+ind, type: 'int', initialValue: 0, id: id });
+		$scope.program.functions[$scope.currentFunction].vars[id] = ({ name: 'newVar'+ind, type: 'float', initialValue: 0, id: id });
 	}
 	$scope.removeVarRec = function(nodes, id){
 		angular.forEach(nodes, function(node, key){
@@ -98,8 +127,8 @@ function IvProgCreateCtrl($scope, IvProgSource, $filter){
 		});
 	}
 	$scope.removeVar = function(v){
-		$scope.removeVarRec($scope.programs[$scope.currentProgram].functions[0].nodes, v.id);
-		delete $scope.programs[$scope.currentProgram].functions[0].vars[v.id];
+		$scope.removeVarRec($scope.program.functions[$scope.currentFunction].nodes, v.id);
+		delete $scope.program.functions[$scope.currentFunction].vars[v.id];
 	}
 	$scope.removeItem = function(parent, item){
 		//parent.nodes.splice(parent.nodes.indexOf(item),1);
@@ -122,8 +151,8 @@ function IvProgCreateCtrl($scope, IvProgSource, $filter){
 	    data.nodes = [];
 	};
 	$scope.run = function(){
-		var code = $scope.genCode($scope.programs[$scope.currentProgram]);
-		//console.log(code);
+		var code = $scope.genCode($scope.program);
+		console.log(code);
 		window.eval(code);
 	}
 	$scope.clearOutput = function(){
@@ -131,7 +160,9 @@ function IvProgCreateCtrl($scope, IvProgSource, $filter){
 	}
 	$scope.genCode = function(funcs){
 		var strCode = "var t = function(){";
+		var i = 0;
 		angular.forEach(funcs.functions, function(func, key){
+			if(i++==0){
 			strCode+= "function "+func.name+"(){";
 			angular.forEach(func.vars, function(variable, key){
 				strCode+="var var_"+variable.id+" = "+variable.initialValue+";";
@@ -144,8 +175,10 @@ function IvProgCreateCtrl($scope, IvProgSource, $filter){
 			if(func.type=="main"){
 				strCode+=func.name+"()";
 			}
+		}
 		});
 		strCode+="}; t();";
+		
 		return strCode;
 	}
 	$scope.genNode = function(nodes){

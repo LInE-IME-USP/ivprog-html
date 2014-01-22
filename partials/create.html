@@ -1,5 +1,5 @@
 <script type="text/ng-template" id="btns.html">
-	<button ng-click="add(node.nodes, 'if', 'se')" class="btn">Condição</button>
+	<button ng-click="add(node.nodes, 'if', 'se')" class="btn">Condiçãox</button>
     <button ng-click="add(node.nodes, 'write', 'escrever')" class="btn">Escrever</button>
     <button ng-click="add(node.nodes, 'for', 'for')" class="btn">Repetir</button>
     <button ng-click="add(node.nodes, 'attr', 'attr')" class="btn">Atribuição</button>
@@ -38,7 +38,7 @@
 <script type="text/ng-template"  id="if.html">
     {{node.name}} 
                     <select ng-model='teste'>
-                        <option ng-repeat="var in programs[currentProgram].functions[0].vars">{{var.name}}</option>
+                        <option ng-repeat="var in program.functions[currentFunction].vars">{{var.name}}</option>
                     </select> igual <input type="text" value="VAR">
     <button class="btn pull-right" ng-click="removeItem(node.parent, node)"><i class="icon icon-trash"></i></button>
     <button ng-click="delete(node)" ng-show="node.nodes.length > 0" class="btn">Limpar</button>
@@ -48,12 +48,12 @@
 </script>
 <script type="text/ng-template"  id="write.html">
     <div class="write">
-    <div class="handle"><i class="icon-sort"></i></div>
+    <div class="handle"><i class="fa fa-sort"></i></div>
         {{node.name}}
-        <button class="btn pull-right" ng-click="removeItem(node.parent, node)"><i class="icon icon-trash"></i></button>
-        (<span select-variable="node.variable" select-model="node.variable" select-vars="programs[currentProgram].functions[0].vars"></span>)
+        <button class="btn btn-danger btn-sm pull-right" ng-click="removeItem(node.parent, node)"><i class="fa fa-minus"></i></button>
+        (<span select-variable="node.variable" select-model="node.variable" select-vars="program.functions[currentFunction].vars"></span>)
         
-        <span class="badge badge-important pull-right" ng-show="node.variable==''"><i class="icon icon-exclamation"></i></span>
+        <span class="pull-right" ng-show="node.variable==''"><i class="fa fa-exclamation-triangle fa-lg"></i></span>
     </div>  
 </script>
 
@@ -75,16 +75,16 @@
         <span edit-in-place-value="ex.v"></span>
     </span>
     <span ng-show="ex.t=='var'">
-        <span select-variable-boot="ex.v" ex="ex" select-model="ex.v" select-vars="programs[currentProgram].functions[0].vars"></span>
+        <span select-variable-boot="ex.v" ex="ex" select-model="ex.v" select-vars="program.functions[currentFunction].vars"></span>
     </span>
-    <span ng-hide="$last">&nbsp;<span select-operator="ex.o" ex="ex" select-model="ex.v" select-vars="programs[currentProgram].functions[0].vars"></span>&nbsp;</span>
+    <span ng-hide="$last">&nbsp;<span select-operator="ex.o" ex="ex" select-model="ex.v" select-vars="program.functions[currentFunction].vars"></span>&nbsp;</span>
 </script>
 
 <script type="text/ng-template"  id="attr.html">
     <div class="attr">
-    <div class="handle"><i class="icon-sort"></i></div>
+    <div class="handle"><i class="fa fa-sort"></i></div>
     <button class="btn pull-right" ng-click="removeItem(node.parent, node)"><i class="icon icon-trash"></i></button>
-    <span select-variable="node.variable" select-model="node.variable" select-vars="programs[currentProgram].functions[0].vars"></span> recebe   
+    <span select-variable="node.variable" select-model="node.variable" select-vars="program.functions[currentFunction].vars"></span> recebe   
             <span edit-in-place="node.value"></span>
             <span ng-repeat="ex in node.exp">
                 <span ng-include="'attr_var_exp.html'"></span>
@@ -98,62 +98,96 @@
             </span>
 
     </div>
-    <span class="badge badge-important pull-right" ng-show="isValidAttr(node.exp)"><i class="icon icon-exclamation"></i></span>
+    <span class="badge badge-important pull-right" ng-show="isValidAttr(node.exp)"><i class="fa fa-exclamation-triangle"></i></span>
 </script>
 
 
 <div class="container">
+    <h2>Programa: {{program.programName}}</h2>
     <ul class="nav nav-tabs">
-        <li class="dropdown" ng-repeat="program in programs">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{program.programName}} <b class="caret"></b></a>
-            <ul class="dropdown-menu">
-              <li ng-repeat="func in program.functions"><a href="#dropdown1" data-toggle="tab">{{func.name}}</a></li>
-              <li><a href="#dropdown1" data-toggle="tab">create a function</a></li>
-              <li><a href="#dropdown1" data-toggle="tab">create a method</a></li>
-            </ul>
-        </li>
+      <li ng-class="{active: $index==currentFunction}" ng-repeat="func in program.functions"><a href="javascript:;" ng-click="setCurrentFunction($index)"><i class="fa fa-code"></i> {{func.name}}</a></li>
     </ul>
-    <div class="row-fluid" ng-repeat="prog in programs">
+
+    <div class="row-fluid" id="program">
         <div class="span6">
-            <div class="ivprog" ng-repeat="func in prog.functions">
-                <div class="parameters">
-                    <h5><i class="icon icon-th-list" style="font-size: 14px;"></i> Parâmetros <button class="btn" ng-click="addParam()"><i class="icon icon-plus"></i></button></h5>
-                    <span class="var" ng-repeat="param in func.params">&nbsp;<span edit-in-place='param.name'></span> = <span edit-in-place='param.initialValue'></span> <span edit-in-place="param.opa" /> <button class="btn btn-mini" ng-click="removeParam(var)"><i class="icon icon-remove"></i></button></span>
+            <div class="ivprog">
+                <div class="parameters" ng-hide="program.functions[currentFunction].isMain">
+                    <h5>
+                        <i class="fa fa-bars fa-fw"></i> Parâmetros 
+                        <button class="btn btn-info" ng-click="addParam()"><i class="fa fa-plus"></i></button>
+                    </h5>
+                    <span class="var" ng-repeat="param in program.functions[currentFunction].params">&nbsp;<span edit-in-place='param.name'></span> = <span edit-in-place='param.initialValue'></span> <span edit-in-place="param.opa" /> <button class="btn btn-mini" ng-click="removeParam(var)"><i class="fa fa-minus"></i></button></span>
                     <span class="clearfix"></span>
                 </div>
                 <div class="variables">
-                    <h5><i class="icon icon-th-list" style="font-size: 14px;"></i> Variáveis locais <button class="btn" ng-click="addVar()"><i class="icon icon-plus"></i></button></h5>
-                    <span class="var" ng-repeat="var in func.vars">&nbsp;<span edit-in-place-var-name='var.name'></span> = <span edit-in-place='var.initialValue'></span> <div class="btn-group"><button class="btn btn-mini" ng-click="configVar(var)"><i class="icon icon-wrench"></i></button><button class="btn btn-mini" ng-click="removeVar(var)"><i class="icon icon-remove"></i></button></div></span>
+                    <h5>
+                        <i class="fa fa-bars fa-fw"></i> Variáveis locais 
+                        <button class="btn btn-info btn-sm" ng-click="addVar()"><i class="fa fa-plus"></i></button>
+                    </h5>
+                    <span class="var" ng-repeat="var in program.functions[currentFunction].vars">&nbsp;<span edit-in-place-var-name='var.name'></span> = <span edit-in-place='var.initialValue'></span>
+                        {{var.type}}
+                        <span class="label label-default" title="Variável numérica">456</span>
+                        <!--span class="label label-primary">Texto</span>
+                        <span class="label label-success">V/F</span-->
+                        
+                          <div class="btn-group">
+                            <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
+                              <i class="fa fa-wrench"></i>
+                              <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                              <li><a ng-click="varSetType(var, 'float')">Número</a></li>
+                              <li><a ng-click="varSetType(var, 'string')">Texto</a></li>
+                              <li><a ng-click="varSetType(var, 'boolean')">Verdadeiro/falso</a></li>
+                            </ul>
+                          </div>
+                            <!--button class="btn btn-xs" ng-click="configVar(var)"><i class="fa fa-wrench"></i></button-->
+                            <button class="btn btn-xs btn-warning" ng-click="removeVar(var)"><i class="fa fa-minus"></i></button>
+                        
+                    </span>
                     <span class="clearfix"></span>
                 </div>
                 
-                <ul ui:sortable="sortableOptions" ng:model="programs[currentProgram].functions[0].nodes">
-                    <li ng-repeat="node in programs[currentProgram].functions[0].nodes" ng-include="getTemplate(node)" ng-animate=" 'animate' ">
+                <ul ui:sortable="sortableOptions" ng:model="program.functions[currentFunction].nodes">
+                    <li ng-repeat="node in program.functions[currentFunction].nodes" ng-include="getTemplate(node)">
                     </li>
                 </ul>
                 <div class="addButtons">
-                    <button class="btn" onclick="$('#addBtns1').fadeToggle();"><i class="icon icon-plus"></i></button>
-                    <div class="btn-group hide" id="addBtns1">
-                        <button ng-click="add(programs[currentProgram].functions[0].nodes, 'if', 'se')" class="btn">Condição</button>
-                        <button ng-click="add(programs[currentProgram].functions[0].nodes, 'read', 'ler')" class="btn">Ler</button>
-                        <button ng-click="add(programs[currentProgram].functions[0].nodes, 'write', 'escrever')" class="btn">Escrever</button>
-                        <button ng-click="add(programs[currentProgram].functions[0].nodes, 'for', 'repetir')" class="btn">Repetir</button>
-                        <button ng-click="add(programs[currentProgram].functions[0].nodes, 'attr', 'attr')" class="btn">Atribuição</button>
+                    <div class="dropdown">
+                      <button class="btn dropdown-toggle btn-info" type="button" id="dropdownMenu1" data-toggle="dropdown">
+                        <i class="glyphicon glyphicon-plus"></i> Instrução
+                      </button>
+                      <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+                        <li role="presentation" class="dropdown-header">Adicionar instrução</li>
+                        <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(program.functions[currentFunction].nodes, 'if', 'se')" href="javascript:;">Condição</a></li>
+                        <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(program.functions[currentFunction].nodes, 'if', 'se')" href="javascript:;">Ler dados do usuário</a></li>
+                        <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(program.functions[currentFunction].nodes, 'write', 'escrever')"  href="javascript:;">Escrever</a></li>
+                        <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(program.functions[currentFunction].nodes, 'for', 'repetir')" href="javascript:;">Repetir</a></li>
+                        <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(program.functions[currentFunction].nodes, 'attr', 'attr')" href="javascript:;">Atribuição</a></li>
+                      </ul>
                     </div>
                 </div>
 
             </div>
         </div>
+
+        
+
         <div class="span6">
-            <h4>Source</h4>
+            <!--h4>Source</h4>
             <div class="source">
                 <span class="comment">// seu programa em código C</span><br />
                 <div class="variables">
                     <i ng-hide="programs[currentProgram].functions[0].vars.length==0">var</i><span ng-show="vars.length>1">;</span> <span class="var" ng-repeat="var in programs[currentProgram].functions[0].vars"> <b>{{var.name}}</b> : {{var.type}} = {{var.initialValue}}<span ng-hide="$last">,</span><span ng-show="$last">;</span></span>
                 </div>
-            </div>
-            <h4>Output</h4>
-            <div class="btn-group"><button class="btn" ng-click="run()"><i class="icon icon-play"></i></button><button class="btn" ng-click="clearOutput()">Clear</button></div>
+            </div-->
+            <h4>
+                <span class="fa-stack">
+                  <i class="fa fa-square fa-stack-2x"></i>
+                  <i class="fa fa-terminal fa-stack-1x fa-inverse"></i>
+                </span>
+                Console</h4>
+            <div class="btn-group"><button class="btn" ng-click="run()"><i class="fa fa-play"></i></button><button class="btn" ng-click="clearOutput()">Clear</button></div>
             <div class="output">
 
             </div>
