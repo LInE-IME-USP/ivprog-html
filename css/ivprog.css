@@ -56,16 +56,10 @@
   z-index: 1000;
 }
 
-.ivprog ul{
+.instrs{
   list-style: none;
-  margin: 0px;
-  /*font-family: 'anonymous_proregular';
-  font-weight: bold;*/
-}
-.ivprogs li{
-  border: 1px solid #C6C6C6;
-  margin: 5px;
-  padding: 5px;
+  margin: 0;
+  padding: 0;
 }
 
 
@@ -106,6 +100,10 @@
 .edit-in-place.active input, .edit-in-place.active select {
   display: inline-block;
 }
+.input-edit{
+  display: inline;
+  width: 80px;
+}
 
 .over{
   background: yellow;
@@ -126,7 +124,7 @@
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   border-radius: 5px;
-  margin: 10px;
+  margin: 10px 0;
   padding: 3px 10px 10px 3px;
 }
 .ivprog .variables .var{
@@ -144,7 +142,7 @@
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   border-radius: 5px;
-  margin: 10px;
+  margin: 10px 0;
   padding: 3px 10px 10px 3px;
 }
 .ivprog .parameters .var{
@@ -158,10 +156,6 @@
   float: left;
 }
 
-.addButtons{
-  margin: 10px;
-  padding: 3px 10px 10px 3px;
-}
 .source, .output{
   background: #6E6E6E;
   margin: 5px;
@@ -176,24 +170,22 @@
 }
 
 
-.ivprog .write{
+.ivprog .btn-delete{
+  position: absolute;
+  top: 5px;
+  right: 5px;
+}
+.ivprog .instr{
+  position: relative;
   background: #EFEFEF;
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   border-radius: 5px;
-  margin: 10px;
-  padding: 10px 10px 10px 10px;
+  margin: 10px 0;
+  padding: 10px;
   border: 1px solid #AEAEAE;
 }
-.ivprog .repeat{
-  background: #EFEFEF;
-  -webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
-  border-radius: 5px;
-  margin: 10px;
-  padding: 10px 10px 10px 10px;
-  border: 1px solid #AEAEAE;
-}
+
 .ivprog .attr{
   background: #EFEFEF;
   -webkit-border-radius: 5px;

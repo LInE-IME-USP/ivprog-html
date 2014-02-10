@@ -1,12 +1,24 @@
+<!-- BOTOES DE INSERIR INSTRUCAO DENTRO DE ESTRUTURAS COMO FOR, WHILE, ETC -->
 <script type="text/ng-template" id="btns.html">
-	<button ng-click="add(node.nodes, 'if', 'se')" class="btn">Condiçãox</button>
-    <button ng-click="add(node.nodes, 'write', 'escrever')" class="btn">Escrever</button>
-    <button ng-click="add(node.nodes, 'for', 'for')" class="btn">Repetir</button>
-    <button ng-click="add(node.nodes, 'attr', 'attr')" class="btn">Atribuição</button>
+    <div class="addButtons">
+        <div class="dropdown">
+          <button class="btn dropdown-toggle btn-info" type="button" id="dropdownMenu1" data-toggle="dropdown">
+            <i class="glyphicon glyphicon-plus"></i>
+          </button>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+            <li role="presentation" class="dropdown-header">Adicionar instrução</li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(node.nodes, 'if', 'se')" href="javascript:;">Condição</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(node.nodes, 'read', 'ler')" href="javascript:;">Ler dados do usuário</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(node.nodes, 'write', 'escrever')"  href="javascript:;">Escrever</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(node.nodes, 'for', 'repetir')" href="javascript:;">Repetir</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(node.nodes, 'attr', 'attr')" href="javascript:;">Atribuição</a></li>
+          </ul>
+        </div>
+    </div>
 </script>
 
 <script type="text/ng-template"  id="nodes.html">
-	<ul ui:sortable="sortableOptions" ng:model="node.nodes">
+	<ul ui:sortable="sortableOptions" ng:model="node.nodes" class="instrs" ng-show="node.nodes.length > 0">
         <li ng-repeat="node in node.nodes" ng-include="getTemplate(node)"></li>
     </ul>
 </script>
@@ -26,31 +38,59 @@
 </script>
 
 <script type="text/ng-template"  id="for.html">
-    <div class="repeat">
-        <div class="handle"><i class="icon-sort"></i></div>
-        {{node.name}} <span edit-in-place='node.times'></span> vezes.
-        <button class="btn pull-right" ng-click="removeItem(node.parent, node)"><i class="icon icon-trash"></i></button>
-        <button ng-click="delete(node)" ng-show="node.nodes.length > 0" class="btn">Limpar</button>
+    <div class="instr repeat">
+        <div class="handle"><i class="fa fa-sort"></i></div>
+            <!-- for simples -->
+            <span ng-show="node.simple">
+                <span ng-show="node.isValue">
+                    {{node.name}} <span edit-in-place='node.times'></span>
+                </span>
+                <span ng-show="!node.isValue">
+                   {{node.name}} <span edit-in-place='node.times'></span> vezes usando <span select-variable="node.simpleVariable" select-model="node.simpleVariable" select-vars="program.functions[currentFunction].vars"></span>
+                </span>
+                <button class="btn btn-xs" ng-click="changeForValue(node)"><i class="fa fa-wrench"></i></button>
+    vezes. 
+                <button class="btn btn-xs btn-warning" ng-click="changeForType(node)"><i class="fa fa-angle-double-right"></i></button>
+            </span>
+            
+
+        <span ng-hide="node.simple">para <span select-variable="node.variable" select-model="node.variable" select-vars="program.functions[currentFunction].vars"></span> = <span edit-in-place='node.initialValue'></span> até <span edit-in-place='node.endValue'></span> incrementando em <span edit-in-place='node.increment'></span> faça <button class="btn btn-xs btn-warning" ng-click="changeForType(node)"><i class="fa fa-angle-double-left"></i></button></span>
+        <button class="btn btn-danger btn-sm btn-delete" ng-click="removeItem(node.parent, node)"><i class="fa fa-minus"></i></button>
+        <!-- button ng-click="delete(node)" ng-show="node.nodes.length > 0" class="btn">Limpar</button-->
         <span ng-include="'nodes.html'"></span>
         <span ng-include="'btns.html'"></span>
     </div>
-</script> 
+</script>
+
 <script type="text/ng-template"  id="if.html">
-    {{node.name}} 
+    <div class="instr repeat">
+        <div class="handle"><i class="fa fa-sort"></i></div>
+            {{node.name}} 
                     <select ng-model='teste'>
                         <option ng-repeat="var in program.functions[currentFunction].vars">{{var.name}}</option>
                     </select> igual <input type="text" value="VAR">
     <button class="btn pull-right" ng-click="removeItem(node.parent, node)"><i class="icon icon-trash"></i></button>
     <button ng-click="delete(node)" ng-show="node.nodes.length > 0" class="btn">Limpar</button>
-    <span ng-include="'nodes.html'"></span>
-    <span ng-include="'btns.html'"></span>
-
+            <span ng-include="'nodes.html'"></span>
+            <span ng-include="'btns.html'"></span>
+        </div>
+    </div>
 </script>
 <script type="text/ng-template"  id="write.html">
-    <div class="write">
+    <div class="instr write">
     <div class="handle"><i class="fa fa-sort"></i></div>
         {{node.name}}
-        <button class="btn btn-danger btn-sm pull-right" ng-click="removeItem(node.parent, node)"><i class="fa fa-minus"></i></button>
+        <button class="btn btn-danger btn-sm btn-delete" ng-click="removeItem(node.parent, node)"><i class="fa fa-minus"></i></button>
+        (<span select-variable="node.variable" select-model="node.variable" select-vars="program.functions[currentFunction].vars"></span>)
+        
+        <span class="pull-right" ng-show="node.variable==''"><i class="fa fa-exclamation-triangle fa-lg"></i></span>
+    </div>  
+</script>
+<script type="text/ng-template"  id="read.html">
+    <div class="instr read">
+    <div class="handle"><i class="fa fa-sort"></i></div>
+        <span edit-in-place='node.message'></span>
+        <button class="btn btn-danger btn-sm btn-delete" ng-click="removeItem(node.parent, node)"><i class="fa fa-minus"></i></button>
         (<span select-variable="node.variable" select-model="node.variable" select-vars="program.functions[currentFunction].vars"></span>)
         
         <span class="pull-right" ng-show="node.variable==''"><i class="fa fa-exclamation-triangle fa-lg"></i></span>
@@ -90,7 +130,7 @@
                 <span ng-include="'attr_var_exp.html'"></span>
             </span>
             <span class="dropdown">
-                    <button class="btn btn-mini" data-toggle="dropdown"><i class="icon icon-align-justify"></i></button>
+                    <button class="btn btn-mini btn-info btn-xs" data-toggle="dropdown"><i class="fa fa-align-justify"></i></button>
                     <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
                         <li><a role="menuitem" ng-click="addElVar(node.exp)">Variável</a></li>
                         <li><a role="menuitem" ng-click="addElVal(node.exp)">Valor</a></li>
@@ -121,12 +161,16 @@
                 </div>
                 <div class="variables">
                     <h5>
-                        <i class="fa fa-bars fa-fw"></i> Variáveis locais 
+                        <i class="fa fa-bars fa-fw"></i> Variáveis 
                         <button class="btn btn-info btn-sm" ng-click="addVar()"><i class="fa fa-plus"></i></button>
                     </h5>
-                    <span class="var" ng-repeat="var in program.functions[currentFunction].vars">&nbsp;<span edit-in-place-var-name='var.name'></span> = <span edit-in-place='var.initialValue'></span>
-                        {{var.type}}
-                        <span class="label label-default" title="Variável numérica">456</span>
+                    <span class="var" ng-repeat="var in program.functions[currentFunction].vars">&nbsp;<span edit-in-place-var-name='var.name'></span> = <span edit-in-place-var-value='var.initialValue'></span>
+                        <!--span ng-switch="var.type">
+                            <span ng-switch-when="int" class="label label-default">Int</span>
+                            <span ng-switch-when="float" class="label label-default">Dec</span>
+                            <span ng-switch-when="string" class="label label-primary">Texto</span>
+                            <span ng-switch-when="boolean" class="label label-success">V/F</span>
+                        </span-->
                         <!--span class="label label-primary">Texto</span>
                         <span class="label label-success">V/F</span-->
                         
@@ -136,19 +180,20 @@
                               <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu">
-                              <li><a ng-click="varSetType(var, 'float')">Número</a></li>
+                              <li><a ng-click="varSetType(var, 'int')">Número inteiro</a></li>
+                              <li><a ng-click="varSetType(var, 'float')">Número real</a></li>
                               <li><a ng-click="varSetType(var, 'string')">Texto</a></li>
                               <li><a ng-click="varSetType(var, 'boolean')">Verdadeiro/falso</a></li>
                             </ul>
                           </div>
                             <!--button class="btn btn-xs" ng-click="configVar(var)"><i class="fa fa-wrench"></i></button-->
-                            <button class="btn btn-xs btn-warning" ng-click="removeVar(var)"><i class="fa fa-minus"></i></button>
+                            <button class="btn btn-xs btn-danger" ng-click="removeVar(var)"><i class="fa fa-minus"></i></button>
                         
                     </span>
                     <span class="clearfix"></span>
                 </div>
                 
-                <ul ui:sortable="sortableOptions" ng:model="program.functions[currentFunction].nodes">
+                <ul ui:sortable="sortableOptions" ng:model="program.functions[currentFunction].nodes" class="instrs">
                     <li ng-repeat="node in program.functions[currentFunction].nodes" ng-include="getTemplate(node)">
                     </li>
                 </ul>
@@ -160,7 +205,7 @@
                       <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
                         <li role="presentation" class="dropdown-header">Adicionar instrução</li>
                         <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(program.functions[currentFunction].nodes, 'if', 'se')" href="javascript:;">Condição</a></li>
-                        <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(program.functions[currentFunction].nodes, 'if', 'se')" href="javascript:;">Ler dados do usuário</a></li>
+                        <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(program.functions[currentFunction].nodes, 'read', 'ler')" href="javascript:;">Ler dados do usuário</a></li>
                         <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(program.functions[currentFunction].nodes, 'write', 'escrever')"  href="javascript:;">Escrever</a></li>
                         <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(program.functions[currentFunction].nodes, 'for', 'repetir')" href="javascript:;">Repetir</a></li>
                         <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(program.functions[currentFunction].nodes, 'attr', 'attr')" href="javascript:;">Atribuição</a></li>
@@ -187,7 +232,7 @@
                   <i class="fa fa-terminal fa-stack-1x fa-inverse"></i>
                 </span>
                 Console</h4>
-            <div class="btn-group"><button class="btn" ng-click="run()"><i class="fa fa-play"></i></button><button class="btn" ng-click="clearOutput()">Clear</button></div>
+            <div class="btn-group"><button class="btn" ng-click="run()"><i class="fa fa-play"></i></button><button class="btn" ng-click="clearOutput()">Limpar console</button></div>
             <div class="output">
 
             </div>
@@ -195,3 +240,19 @@
     </div>
 </div>
 
+<div class="modal" id="readData">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Entrada de dados</h4>
+      </div>
+      <div class="modal-body">
+        <p id="msgRead"></p>
+        <p><input type="text" id="valor" /></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="btnOk">Confirmar</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->

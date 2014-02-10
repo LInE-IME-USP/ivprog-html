@@ -1,3 +1,5 @@
+var deferred = Deferred();
+
 function StartCtrl(){
 
 }
@@ -154,23 +156,47 @@ function IvProgCreateCtrl($scope, IvProgSource, $filter){
 		var code = $scope.genCode($scope.program);
 		console.log(code);
 		window.eval(code);
+
+		$("#valor").unbind('keydown');
+		$("#valor").keydown(function( event ) {
+			if ( event.which == 13 ) {
+				$('#readData').modal('hide');
+				var valor = $("#valor").val();
+				$("#valor").val("");
+				deferred.call(valor);
+				event.preventDefault();
+			}
+		});
+		$("#btnOk").unbind('click');
+		$("#btnOk").click(function(){
+			$('#readData').modal('hide');
+			var valor = $("#valor").val();
+			$("#valor").val("");
+			deferred.call(valor);
+		});
 	}
 	$scope.clearOutput = function(){
 		$(".output").html("");
 	}
 	$scope.genCode = function(funcs){
 		var strCode = "var t = function(){";
+
+		//strCode += 'var deferred = Deferred();';
+
 		var i = 0;
 		angular.forEach(funcs.functions, function(func, key){
 			if(i++==0){
 			strCode+= "function "+func.name+"(){";
+
 			angular.forEach(func.vars, function(variable, key){
 				strCode+="var var_"+variable.id+" = "+variable.initialValue+";";
 			});
-			var ordenador = $filter('orderBy');
-			//console.log(ordenador(func.nodes, "order"));
-			// precisa ordenar os nodes
+	
+			strCode+= 'next(function(){';			
+			//strCode+='return deferred;'
+			strCode+='})'
 			strCode+=$scope.genNode(func.nodes);
+
 			strCode+= "}";
 			if(func.type=="main"){
 				strCode+=func.name+"()";
@@ -186,24 +212,90 @@ function IvProgCreateCtrl($scope, IvProgSource, $filter){
 		angular.forEach(nodes, function(node, key){
 			if(node.type=="write"){
 				if(node.variable!=''){
+					strCode += ".next(function(){";
 					strCode += "writer(";
 					strCode += "var_"+node.variable;
-					strCode += ");";
+					strCode += ");})";
 				}
 			}
 			if(node.type=="for"){
-				if(node.times>0){
-					strCode+= "for(var for_"+node.id+"=0; for_"+node.id+"<"+node.times+"; "+"for_"+node.id+"++){";
-					if(node.nodes.length>0){
-						strCode += $scope.genNode(node.nodes);
+				console.log(node);
+				if(((node.simple)&&(node.times>0))||((node.simple)&&(node.simpleVariable!=""))){
+					strCode+= '.next(function(){';
+					if(node.isValue){
+						strCode+= 'var i'+node.id+' = 0;'
+					}else{
+						strCode+= 'var_'+node.simpleVariable+' = 0;'
 					}
-					strCode+="}";
+					strCode+= 'function loop'+node.id+'(){';
+					strCode+= '	return next(function(){})'; // apenas para poder encadear
+					if(node.nodes.length>0){
+						strCode+= $scope.genNode(node.nodes);
+					}
+					strCode+='	.next(function(){';
+					//strCode+='		writer("i'+node.id+'"+i'+node.id+');'
+					if(node.isValue){
+						strCode+='		++i'+node.id+';';	
+						strCode+='		if(i'+node.id+'<'+node.times+'){';
+					}else{
+						strCode+='		++var_'+node.simpleVariable+';';
+						strCode+='		if(var_'+node.simpleVariable+'<'+node.times+'){';
+					}
+					
+					
+					strCode+='			return loop'+node.id+'();';
+					strCode+='		}'
+					strCode+='	});';
+					strCode+='}';
+					strCode+='return loop'+node.id+'();})';
+				}else{
+					strCode+= '.next(function(){';
+					strCode+= ''+node.simpleVariable+' = '+node.initialValue+';'
+					strCode+= 'function loop'+node.id+'(){';
+					strCode+= '	return next(function(){})'; // apenas para poder encadear
+					if(node.nodes.length>0){
+						strCode+= $scope.genNode(node.nodes);
+					}
+					strCode+='	.next(function(){';
+					//strCode+='		writer("i'+node.id+'"+i'+node.id+');'
+					strCode+='		++'+node.simpleVariable+';';
+					strCode+='		if('+node.simpleVariable+'<'+node.endValue+'){';
+					strCode+='			return loop'+node.id+'();';
+					strCode+='		}'
+					strCode+='	});';
+					strCode+='}';
+					strCode+='return loop'+node.id+'();})';
 				}
 			}
 			if(node.type=="attr"){
-				strCode+=" var_"+node.variable+"=";
-				strCode+="("+$scope.genExp(node.exp)+")";
-				strCode+=";";
+				strCode+= '.next(function () {';
+				strCode+="		var_"+node.variable+"=";
+				strCode+="			("+$scope.genExp(node.exp)+")";
+				strCode+="		;";
+				strCode+= '})';
+			}
+			if(node.type=="read"){
+				strCode+= '.next(function () {';
+				strCode+= '		$("#msgRead").html("'+node.message+'");';
+				strCode+= '		$("#readData").modal();';
+				strCode+= '		$("#valor").focus();';
+				strCode+= '		return deferred;';
+				strCode+= '}).';
+				strCode+= 'next(function(a){';
+				strCode+= '		console.log("Valor lido: "+a);';
+				var v = $scope.program.functions[$scope.currentFunction].vars[node.variable];
+				if(v.type=="int"){
+					strCode+= "		var_"+node.variable +" = parseInt(a);";	
+				}else if(v.type="float"){
+					strCode+= "		var_"+node.variable +" = parseFloat(a);";
+				}else if(v.type="boolean"){
+					// tratar boolean depois
+					strCode+= "		var_"+node.variable +" = a;";
+				}else{
+					strCode+= "		var_"+node.variable +" = a;";
+				}
+				
+				strCode+= '})';
 			}
 			/*if(node.nodes.length>0){
 				strCode += $scope.genCode(node.nodes);
@@ -229,6 +321,17 @@ function IvProgCreateCtrl($scope, IvProgSource, $filter){
 		return strCode;
 	}
 	
+	$scope.changeForType = function(node){
+		node.simple = !node.simple;
+	}
+	$scope.changeForValue = function(node){
+		node.isValue = !node.isValue;
+		if(!node.isValue){
+			node.simpleVariable = "";
+		}
+		writer(node.isValue);
+	}
+
 	$scope.add = function(parent, type, name) {
 	    var newNode = {
 	    					id: $scope.itemCount++,
@@ -239,11 +342,21 @@ function IvProgCreateCtrl($scope, IvProgSource, $filter){
 		    			};
 
 		// especifico de cada estrutura
+		if(type=="read"){
+			newNode.message = "Por favor digite um valor:";
+		}
 		if(type=="write"){
 			newNode.variable = "";
 		}
 		if(type=="for"){
 			newNode.times = 5;
+			newNode.simple = true;
+			newNode.isValue = true;
+			newNode.simpleVariable = "";
+			newNode.initialValue = 0;
+			newNode.endValue = 5;
+			newNode.increment = 1;
+			newNode.variable = "";
 		}
 		if(type=="attr"){
 			newNode.id = "attr_"+newNode.id;
