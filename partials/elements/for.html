@@ -1,0 +1,26 @@
+<div class="instr repeat">
+    <div class="handle"><i class="fa fa-sort"></i></div>
+        <span><a href="javascript:;" ng-click="childrenVisible(node)"><img src="img/expand_up.png" ng-show="node.isChildrenVisible" /><img src="img/expand_down.png" ng-hide="node.isChildrenVisible" /></a></span>
+
+        <!-- for simples -->
+        <span ng-show="node.simple">
+            <span ng-show="node.isValue">
+                {{node.name}} <span edit-in-place-var-value="node.times" type="'int'"></span>
+            </span>
+            <span ng-show="!node.isValue">
+               {{node.name}} <span edit-in-place='node.times'></span> vezes usando <span select-variable="node.simpleVariable" select-model="node.simpleVariable" select-vars="program.functions[currentFunction].vars"></span>
+            </span>
+            <button class="btn btn-xs" ng-click="changeForValue(node)"><i class="fa fa-wrench"></i></button>
+vezes. 
+            <button class="btn btn-xs btn-warning" ng-click="changeForType(node)"><i class="fa fa-angle-double-right"></i></button>
+        </span>
+        
+
+    <span ng-hide="node.simple">para <span select-variable="node.variable" select-model="node.variable" select-vars="program.functions[currentFunction].vars"></span> = <span edit-in-place='node.initialValue'></span> até <span edit-in-place='node.endValue'></span> incrementando em <span edit-in-place='node.increment'></span> faça <button class="btn btn-xs btn-warning" ng-click="changeForType(node)"><i class="fa fa-angle-double-left"></i></button></span>
+    <button class="btn btn-danger btn-sm btn-delete" ng-click="removeItem(node.parent, node)"><i class="fa fa-minus"></i></button>
+    
+    <span ng-show="node.isChildrenVisible">
+        <span ng-include="'nodes.html'"></span>
+        <span ng-include="'partials/elements/btns.html'"></span>
+    </span>
+</div>

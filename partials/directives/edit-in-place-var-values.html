@@ -1,0 +1,13 @@
+<span ng-click="edit()" class="normal">
+		<span ng-show="type=='string'">{{value}}</span>
+		<span ng-show="type=='float'">{{value| number:4}}</span>
+		<span ng-show="type=='int'">{{value}}</span>
+		<span  ng-show="type=='boolean'">
+			<span ng-show="value">Verdadeiro</span>
+			<!--span ng-show="value==''">Verdadeiro</span-->
+			<span ng-hide="value">Falso</span>
+		</span>
+</span>
+<span class="control-group form-group">
+	<input ng-model="value" type="text" class="input-edit input form-control input-sm" />
+</span>

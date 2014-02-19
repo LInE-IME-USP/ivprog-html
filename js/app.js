@@ -15,34 +15,12 @@ ivProgApp.run(function($rootScope){
     Deferred.define();
 });
 
-ivProgApp.directive('editInPlacess', function($parse){
-	return {
-		restrict: 'A',
-
-		link: function($scope, element, attrs){
-			//console.log($parse(element.html()));
-			$(element).editable({
-				type: 'text',
-				placement: 'right',
-				template: 'teste',
-				title: 'Alterar nome da variável',
-				success: function(response, newValue) {
-					//console.log("Resp: "+response+"NV: "+newValue);
-					//console.log("OPA");
-					//userModel.set('username', newValue); //update backbone model
-				}
-			});
-		}
-	};
-});
-
 ivProgApp.directive('editInPlace', function() {
   return {
     restrict: 'A',
     scope: { value: '=editInPlace' },
     template: '<span ng-click="edit()" ng-bind="value" class="normal"></span><span class="control-group"><input ng-model="value" type="text" class="input" /></span>',
     link: function ( $scope, element, attrs ) {
-      console.log($scope.rule);
       // Let's get a reference to the input element, as we'll want to reference it.
       //var inputElement = angular.element( element.children()[1] );
       var inputElement = $(element).find("input");
@@ -105,13 +83,15 @@ ivProgApp.directive('editInPlace', function() {
   };
 });
 
-ivProgApp.directive('editInPlaceVarValue', function() {
+ivProgApp.directive('editInPlaceVarValue', function($rootScope) {
   return {
     restrict: 'A',
-    scope: { value: '=editInPlaceVarValue' },
-    template: '<span ng-click="edit()" ng-bind="value" class="normal"></span><span class="control-group form-group"><input ng-model="value" type="text" class="input-edit input form-control input-sm" /></span>',
+    scope: { 
+      value: '=editInPlaceVarValue',
+      type: '=type'
+    },
+    templateUrl: 'partials/directives/edit-in-place-var-values.html',
     link: function ( $scope, element, attrs ) {
-      console.log($scope.rule);
       // Let's get a reference to the input element, as we'll want to reference it.
       //var inputElement = angular.element( element.children()[1] );
       var inputElement = $(element).find("input");
@@ -125,16 +105,21 @@ ivProgApp.directive('editInPlaceVarValue', function() {
       
       // ng-click handler to activate edit-in-place
       $scope.edit = function () {
-        $scope.editing = true;
-        
-        // We control display through a class on the directive itself. See the CSS.
-        element.addClass( 'active' );
-        
-        // And we must focus the element. 
-        // `angular.element()` provides a chainable array, like jQuery so to access a native DOM function, 
-        // we have to reference the first element in the array.
-        inputElement[0].focus();
-      };
+        if($scope.type=="boolean"){
+          $scope.value = !$scope.value;
+        }else{
+
+          $scope.editing = true;
+          
+          // We control display through a class on the directive itself. See the CSS.
+          element.addClass( 'active' );
+          
+          // And we must focus the element. 
+          // `angular.element()` provides a chainable array, like jQuery so to access a native DOM function, 
+          // we have to reference the first element in the array.
+          inputElement[0].focus();
+        }
+      }
       $(element).mouseout(function(){
         $(this).removeClass("over");
       });
@@ -147,9 +132,9 @@ ivProgApp.directive('editInPlaceVarValue', function() {
             $scope.editing = false;
             element.removeClass('active');
             element.removeClass('over');
-            $(spanControlGroup).removeClass("error");
+            $(spanControlGroup).removeClass("has-error");
           }else{
-             $(spanControlGroup).addClass("error");
+             $(spanControlGroup).addClass("has-error");
           }
         }
       });
@@ -158,17 +143,111 @@ ivProgApp.directive('editInPlaceVarValue', function() {
         if($scope.isValid($scope.value)){
            $scope.editing = false;
            element.removeClass('active');
-           $(spanControlGroup).removeClass("error");
+           $(spanControlGroup).removeClass("has-error");
         }else{
-          $(spanControlGroup).addClass("error");
+          $(spanControlGroup).addClass("has-error");
         }
       });
+
       //$scope.variableNamePattern = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
       $scope.isValid = function(value){
+        //return true;
+        if($scope.type=="int"){
+          var VAR_NAME = /^[0-9]*$/;
+          return VAR_NAME.test(value);  
+        }
+        if($scope.type=="float"){
+          var VAR_NAME = /^[\-+]?[0-9]*\.?[0-9]*$/;
+          return VAR_NAME.test(value);  
+        }
         return true;
-        var VAR_NAME = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
-        return VAR_NAME.test(value);
+        
       }
+      
+    }
+  };
+});
+
+ivProgApp.directive('editExpression', function() {
+  return {
+    restrict: 'A',
+    scope: { 
+      ex: '=editExpression',
+      type: '=type',
+      vars: '=vars'
+    },
+    templateUrl: 'partials/directives/edit-expression.html',
+    link: function ( $scope, element, attrs ) {
+      // Let's get a reference to the input element, as we'll want to reference it.
+      //var inputElement = angular.element( element.children()[1] );
+      /*var inputElement = $(element).find("input");
+      var spanControlGroup = $(element).find(".control-group");
+
+      // This directive should have a set class so we can style it.
+      element.addClass('edit-in-place');
+      
+      // Initially, we're not editing.
+      $scope.editing = false;
+      
+      // ng-click handler to activate edit-in-place
+      $scope.edit = function () {
+        if($scope.type=="boolean"){
+          $scope.value = !$scope.value;
+        }else{
+          $scope.editing = true;
+          
+          // We control display through a class on the directive itself. See the CSS.
+          element.addClass( 'active' );
+          
+          // And we must focus the element. 
+          // `angular.element()` provides a chainable array, like jQuery so to access a native DOM function, 
+          // we have to reference the first element in the array.
+          inputElement[0].focus();
+        }
+      }
+      $(element).mouseout(function(){
+        $(this).removeClass("over");
+      });
+      $(element).mouseover(function(){
+        $(this).addClass("over");
+      });
+      $(inputElement).keyup(function(e){
+        if(e.keyCode==13){
+          if($scope.isValid($scope.value)){
+            $scope.editing = false;
+            element.removeClass('active');
+            element.removeClass('over');
+            $(spanControlGroup).removeClass("has-error");
+          }else{
+             $(spanControlGroup).addClass("has-error");
+          }
+        }
+      });
+      // When we leave the input, we're done editing.
+      $(inputElement).blur(function(){
+        if($scope.isValid($scope.value)){
+           $scope.editing = false;
+           element.removeClass('active');
+           $(spanControlGroup).removeClass("has-error");
+        }else{
+          $(spanControlGroup).addClass("has-error");
+        }
+      });
+
+      //$scope.variableNamePattern = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
+      $scope.isValid = function(value){
+        //return true;
+        if($scope.type=="int"){
+          var VAR_NAME = /^[0-9]*$/;
+          return VAR_NAME.test(value);  
+        }
+        if($scope.type=="float"){
+          var VAR_NAME = /^[\-+]?[0-9]*\.?[0-9]*$/;
+          return VAR_NAME.test(value);  
+        }
+        return true;
+        
+      }*/
       
     }
   };
@@ -180,7 +259,6 @@ ivProgApp.directive('editInPlaceVarName', function() {
     scope: { value: '=editInPlaceVarName' },
     template: '<span ng-click="edit()" ng-bind="value" class="normal"></span><span class="control-group form-group"><input ng-model="value" type="text" class="input-edit input form-control input-sm" /></span>',
     link: function ( $scope, element, attrs ) {
-      console.log($scope.rule);
       // Let's get a reference to the input element, as we'll want to reference it.
       var inputElement = $(element).find("input");
       var spanControlGroup = $(element).find(".control-group");
@@ -294,8 +372,12 @@ ivProgApp.directive('editInPlaceValue', function() {
 ivProgApp.directive('selectVariable', function() {
   return {
     restrict: 'A',
-    scope: { value: '=selectVariable', model: '=selectModel', vars: '=selectVars' },
-    template: '<span class="dropdown select-variable-value" ng-class="{\'need-to-set\': value==\'\'}"><a id="drop1" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown"><span ng-show="value==\'\'"><i>selecionar variável</i></span><span ng-hide="value==\'\'">{{vars[value].name}}</span> <b class="caret"></b></a><ul class="dropdown-menu" role="menu" aria-labelledby="drop1"><li ng-repeat="var in vars"><a ng-click="setValue(var.id)">{{var.name}}</a></li></ul></span></span>',
+    scope: { 
+      value: '=selectVariable', 
+      vars: '=selectVars',
+      type: '=type'
+    },
+    templateUrl: 'partials/directives/select-variable.html',
     link: function ( $scope, element, attrs ) {
       // Let's get a reference to the input element, as we'll want to reference it.
       var inputElement = angular.element( element.children()[1] );
@@ -347,8 +429,13 @@ ivProgApp.directive('selectVariable', function() {
 ivProgApp.directive('selectOperator', function() {
   return {
     restrict: 'A',
-    scope: { value: '=selectOperator', model: '=selectModel', vars: '=selectVars' },
-    template: '<span class="dropdown select-variable-value" ng-class="{\'need-to-set\': value==\'\'}"><a id="drop1" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown"><span ng-show="value==\'\'"><i>selecionar operação</i></span><span ng-hide="value==\'\'">{{value}}</span> <b class="caret"></b></a><ul class="dropdown-menu" role="menu" aria-labelledby="drop1"><li ng-repeat="op in operators"><a ng-click="setValue(op)">{{op}}</a></li></ul></span></span>',
+    scope: { 
+      value: '=selectOperator', 
+      model: '=selectModel', 
+      vars: '=selectVars',
+      type: '=type'
+    },
+    templateUrl: 'partials/directives/select-operator.html',
     link: function ( $scope, element, attrs ) {
       // Let's get a reference to the input element, as we'll want to reference it.
       var inputElement = angular.element( element.children()[1] );
@@ -357,18 +444,48 @@ ivProgApp.directive('selectOperator', function() {
       //element.addClass('edit-in-place');
       
       $scope.operators = {
-        "+": "+",
-        "-": "-",
-        "/": "/",
-        "*": "*",
-        "%": "%"
+        "+": {
+                id: "+",
+                display: "+",
+                compatible: ["float", "int", "string"]
+        },
+        "-": {
+                id: "-",
+                display: "-",
+                compatible: ["float", "int"]
+        },
+        "/": {
+                id: "/",
+                display: "/",
+                compatible: ["float", "int"]
+        },
+        "*": {
+                id: "*",
+                display: "*",
+                compatible: ["float", "int"]
+        },
+        "%": {
+                id: "%",
+                display: "%",
+                compatible: ["float", "int"]
+        },
+        "&&": {
+                id: "&&",
+                display: "E",
+                compatible: ["boolean"]
+        },
+        "||": {
+                id: "||",
+                display: "OU",
+                compatible: ["boolean"]
+        }
       };
 
       // Initially, we're not editing.
       $scope.editing = false;
       
       $scope.setValue = function(v){
-        $scope.value = v;
+        $scope.value = v.id;
       }
       // ng-click handler to activate edit-in-place
       $scope.edit = function () {
@@ -405,11 +522,16 @@ ivProgApp.directive('selectOperator', function() {
   };
 });
 
-ivProgApp.directive('selectVariableBoot', function() {
+ivProgApp.directive('selectVariableExpression', function() {
   return {
     restrict: 'A',
-    scope: { ex: '=ex', value: '=selectVariableBoot', model: '=selectModel', vars: '=selectVars' },
-    template: '<span class="dropdown select-variable-value" ng-class="{\'need-to-set\': value==\'\'}"><a id="drop1" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown"><span ng-show="value==\'\'"><i>selecionar variável</i></span><span ng-hide="value==\'\'">{{vars[value].name}}</span> <b class="caret"></b></a><ul class="dropdown-menu" role="menu" aria-labelledby="drop1"><li ng-repeat="var in vars"><a ng-click="setValue(var.id)">{{var.name}}</a></li><li class="divider"></li><li><a ng-click="removeItem(ex)">Remover item</a></li><li><a ng-click="convertToValue(ex)">Converter para valor</a></li><li><a ng-click="isolar(ex)">Isolar</a></li></ul></span></span>',
+    scope: { 
+      value: '=selectVariableExpression',
+      ex: '=ex', 
+      vars: '=vars',
+      type: '=type'
+    },
+    templateUrl: 'partials/directives/select-variable-expression.html',
     link: function ( $scope, element, attrs ) {
       // Let's get a reference to the input element, as we'll want to reference it.
       var inputElement = angular.element( element.children()[1] );
@@ -436,6 +558,13 @@ ivProgApp.directive('selectVariableBoot', function() {
         v.p.splice(v.p.indexOf(v), 1);
       }
 
+      $scope.showOnlyForTypeFilter = function(variable){
+        console.log(variable);
+        console.log($scope.type);
+
+        return variable.type==$scope.type;
+      }
+
       // ng-click handler to activate edit-in-place
       $scope.edit = function () {
         $scope.editing = true;
@@ -471,6 +600,79 @@ ivProgApp.directive('selectVariableBoot', function() {
   };
 });
 
+
+
+ivProgApp.directive('booleanExpression', function() {
+  return {
+    restrict: 'A',
+    scope: { 
+      value: '=booleanExpression',
+      ex: '=ex', 
+      vars: '=vars'
+    },
+    templateUrl: 'partials/directives/boolean-expression.html',
+    link: function ( $scope, element, attrs ) {
+      
+      
+      $scope.setValue = function(v){
+        $scope.value.op = v;
+      }
+      $scope.isolar = function(item){
+        item.t = "exp";
+        item.v = "";
+        item.exp = [];
+      }
+      $scope.convertToValue = function(item){
+        item.t = "val";
+        item.v = 0;
+      }
+      $scope.removeItem = function(v){
+        v.p.splice(v.p.indexOf(v), 1);
+      }
+
+      $scope.showOnlyForTypeFilter = function(variable){
+        return variable.type==$scope.type;
+      }
+
+
+      $scope.operators = {
+        ">": {
+                id: ">",
+                display: ">",
+                compatible: ["float", "int", "string"]
+        },
+        "<": {
+                id: "<",
+                display: "<",
+                compatible: ["float", "int", "string"]
+        },
+        "<=": {
+                id: "<=",
+                display: "<=",
+                compatible: ["float", "int"]
+        },
+        ">=": {
+                id: ">=",
+                display: ">=",
+                compatible: ["float", "int"]
+        },
+        "==": {
+                id: "==",
+                display: "=",
+                compatible: ["float", "int", "string", "boolean"]
+        },
+        "!=": {
+                id: "!=",
+                display: "<>",
+                compatible: ["float", "int", "string", "boolean"]
+        }
+      };
+    }
+  };
+});
+
+
+
 var INTEGER_REGEXP = /^\-?\d*$/;
 ivProgApp.directive('integer', function() {
   return {
@@ -490,3 +692,4 @@ ivProgApp.directive('integer', function() {
     }
   };
 });
+

@@ -1,0 +1,24 @@
+    <span ng-show="ex.t=='exp'">
+        (<span ng-repeat="ex in ex.exp">
+            {{ex}}
+            <span edit-in-place-var-value='ex.v' type='type'></span>++
+            </span> 
+            <span class="dropdown">
+            <button class="btn btn-mini" data-toggle="dropdown"><i class="icon icon-align-justify"></i></button>
+            <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                <li><a role="menuitem" ng-click="addElVar(ex.exp)">Variável</a></li>
+                <li><a role="menuitem" ng-click="addElVal(ex.exp)">Valor</a></li>
+                <li><a role="menuitem" ng-click="addElExpB(ex.exp)">Expressão Booleana</a></li>
+            </ul>
+    </span>)
+    </span>
+    <span ng-show="ex.t=='val'">
+        <span edit-in-place-var-value='ex.v' type='type'></span>
+    </span>
+    <span ng-show="ex.t=='var'">
+        <span select-variable-expression="ex.v" ex="ex" vars="vars" type="type"></span>
+    </span>
+    <span ng-show="ex.t=='expB'">
+        <span boolean-expression="ex.v" ex="ex" vars="vars"></span>
+    </span>
+    <span ng-hide="$last">&nbsp;<span select-operator="ex.o" ex="ex" select-model="ex.v" select-vars="program.functions[currentFunction].vars" type="type"></span>&nbsp;</span>

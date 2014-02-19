@@ -1,0 +1,16 @@
+<!-- BOTOES DE INSERIR INSTRUCAO DENTRO DE ESTRUTURAS COMO FOR, WHILE, ETC -->
+<div class="addButtons">
+    <div class="dropdown">
+      <button class="btn dropdown-toggle btn-info btn-sm" type="button" id="dropdownMenu1" data-toggle="dropdown">
+        <i class="fa fa-plus fa-fw"></i> Instrução
+      </button>
+      <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+        <li role="presentation" class="dropdown-header">Adicionar instrução</li>
+        <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(node.nodes, 'if', 'se')" href="javascript:;">Condição</a></li>
+        <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(node.nodes, 'read', 'ler')" href="javascript:;">Ler dados do usuário</a></li>
+        <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(node.nodes, 'write', 'escrever')"  href="javascript:;">Escrever</a></li>
+        <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(node.nodes, 'for', 'repetir')" href="javascript:;">Repetir</a></li>
+        <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(node.nodes, 'attr', 'attr')" href="javascript:;">Atribuição</a></li>
+      </ul>
+    </div>
+</div>

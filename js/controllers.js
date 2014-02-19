@@ -3,10 +3,55 @@ var deferred = Deferred();
 function StartCtrl(){
 
 }
-function IvProgCreateCtrl($scope, IvProgSource, $filter){
+function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 	$scope.itemCount = 0;
 	$scope.vars = [];
 	$scope.params = [];
+
+
+	// undo - redo control
+	$scope.historyStack = -1;
+	$scope.actionsHistory = [];
+	$scope.addSnap = true;
+	$scope.takeSnap = function(friendlyName, applying, sp){
+		if(sp){
+			$scope.actionsHistory.splice($scope.historyStack, $scope.actionsHistory.length-$scope.historyStack);
+		}
+		$scope.actionsHistory.push({name: friendlyName, src: JSON.stringify($scope.program)});
+		$scope.historyStack = $scope.actionsHistory.length;
+	}
+	$rootScope.snapshot = function(friendlyName, applying){
+		if(!applying){
+			$scope.$apply(function(){
+				$scope.takeSnap(friendlyName, applying, true);
+			});
+		}else{
+			$scope.takeSnap(friendlyName, applying, true);
+		}
+		$scope.addSnap = true;
+	}
+	$scope.undo = function(){
+		if($scope.historyStack>0){
+			if($scope.addSnap){
+				// salvando o estado atual
+				$scope.takeSnap('', 1);
+				$scope.historyStack--;
+				$scope.addSnap = false;
+			}
+			$scope.historyStack--;
+			var obj = JSON.parse($scope.actionsHistory[$scope.historyStack].src);
+			$scope.program = obj;
+		}
+	}
+	$scope.redo = function(){
+		if($scope.historyStack < $scope.actionsHistory.length-1){
+			$scope.historyStack++;
+			var obj = JSON.parse($scope.actionsHistory[$scope.historyStack].src);
+			
+			$scope.program = obj;
+		}
+	}
+
 
 	$scope.currentFunction = 0;
 	$scope.program = { 
@@ -14,26 +59,12 @@ function IvProgCreateCtrl($scope, IvProgSource, $filter){
 							functions: [
 								{
 									isMain: true,
-									name: "main",
+									name: "Principal",
 									vars: {},
-									varss: {
-										"var_1":
-											{ name: 'newVar1', type: 'int', initialValue: 0, id: "var_1" }
-									},
 									params: {},
 									type: "main", // int, void, float
-									nodes:[],
-									nodess: [
-										{
-					    					id: "attr_1",
-						    				type: "attr",
-						    				name: "attr",
-						    				parent: null,
-						    				variable: "",
-						    				exp: []
-						    			}
-									]
-								},
+									nodes:[]
+								}/*,
 								{
 									isMain: false,
 									name: "fatorial",
@@ -55,7 +86,7 @@ function IvProgCreateCtrl($scope, IvProgSource, $filter){
 						    				exp: []
 						    			}
 									]
-								}
+								}*/
 							]
 						};
 
@@ -79,21 +110,36 @@ function IvProgCreateCtrl($scope, IvProgSource, $filter){
 						p: v
 					});
 	}
+	$scope.addElExpB = function(v){
+		v.push({
+						t: "expB",
+						v: {
+							op1: {
+								t: "v",
+								v: ""
+							},
+							op2: {
+								t: "v",
+								v: ""
+							},
+							op: ">"
+						},
+						o: "&&",
+						p: v
+					});
+	}
 	$scope.isolar = function(item){
 		item.t = "exp";
 		item.v = "";
 		item.exp = [];
-		//console.log(item);
-		//item.v.push({t: "val", v: "a", o: "+"});
 	}
 	$scope.addExp = function(parent){
 		parent.push({ t: "val", v: "a", o: "+"});
-		//$scope.programs[$scope.currentProgram].functions[0].nodes[0].exp.push({t:"val", v: "teste", o: "+"});
 	}
 	
 
 	$scope.getTemplate = function(x){
-		return x.type+'.html';
+		return 'partials/elements/'+x.type+'.html';
 	}
 	$scope.addParam = function(){
 		//var ind = $scope.params.length;
@@ -106,9 +152,43 @@ function IvProgCreateCtrl($scope, IvProgSource, $filter){
 		$scope.params.splice($scope.params.indexOf(v), 1);
 	}
 	$scope.varSetType = function(v, type){
+		var previousType = v.type;
 		v.type = type;
+
+		if(type=="string"){
+			v.initialValue = "Olá mundo!";
+		}else if(type=="float"){
+			v.initialValue = 1.0;
+		}else if(type=="int"){
+			v.initialValue = 0;
+		}else if(type=="boolean"){
+			v.initialValue = true;
+		}
+		$scope.checkChangeTypeConsequences(v, $scope.program.functions[$scope.currentFunction].nodes, previousType);
+	}
+	// quando alterar o tipo de uma variavel, checar as consequencias
+	$scope.checkChangeTypeConsequences = function(variable, where, previous){
+		angular.forEach(where, function(item, key){
+			if(item.type=="attr"){
+				if(item.variable==variable.id){
+					if(variable.type!=previous){
+						var compatibility = ["int", "float"];
+						if((compatibility.indexOf(variable.type)==-1)||(compatibility.indexOf(previous)==-1)){
+							if(where[key].exp.length>0){
+								where[key].exp = [];
+							}	
+						}
+					}
+				}
+			}
+			if(item.nodes && item.nodes.length>0){
+				$scope.checkChangeTypeConsequences(variable, item.nodes);
+			}
+		});
 	}
 	$scope.addVar = function(){
+		// TODO: checar se alterou o valor
+        //$rootScope.snapshot('Variável adicionada', true);
 		var ind = $scope.itemCount;
 		var id = "var"+$scope.itemCount++;
 		$scope.program.functions[$scope.currentFunction].vars[id] = ({ name: 'newVar'+ind, type: 'float', initialValue: 0, id: id });
@@ -133,7 +213,6 @@ function IvProgCreateCtrl($scope, IvProgSource, $filter){
 		delete $scope.program.functions[$scope.currentFunction].vars[v.id];
 	}
 	$scope.removeItem = function(parent, item){
-		//parent.nodes.splice(parent.nodes.indexOf(item),1);
 		parent.splice(parent.indexOf(item),1);
 	}
 	$scope.isValidAttr = function(attr){
@@ -143,7 +222,6 @@ function IvProgCreateCtrl($scope, IvProgSource, $filter){
 
 			}
 		});
-		//console.log(attr);
 		return false;
 	}
 	$scope.sortableOptions = {
@@ -180,22 +258,22 @@ function IvProgCreateCtrl($scope, IvProgSource, $filter){
 	}
 	$scope.genCode = function(funcs){
 		var strCode = "var t = function(){";
-
-		//strCode += 'var deferred = Deferred();';
-
 		var i = 0;
 		angular.forEach(funcs.functions, function(func, key){
 			if(i++==0){
 			strCode+= "function "+func.name+"(){";
-
 			angular.forEach(func.vars, function(variable, key){
-				strCode+="var var_"+variable.id+" = "+variable.initialValue+";";
+				if(variable.type=="string"){
+					strCode+="var var_"+variable.id+" = \""+variable.initialValue+"\";";
+				}else{
+					strCode+="var var_"+variable.id+" = "+variable.initialValue+";";
+				}
 			});
 	
 			strCode+= 'next(function(){';			
 			//strCode+='return deferred;'
 			strCode+='})'
-			strCode+=$scope.genNode(func.nodes);
+			strCode+=$scope.genNode(func.nodes, func.vars);
 
 			strCode+= "}";
 			if(func.type=="main"){
@@ -207,7 +285,7 @@ function IvProgCreateCtrl($scope, IvProgSource, $filter){
 		
 		return strCode;
 	}
-	$scope.genNode = function(nodes){
+	$scope.genNode = function(nodes, vars){
 		var strCode = "";
 		angular.forEach(nodes, function(node, key){
 			if(node.type=="write"){
@@ -230,7 +308,7 @@ function IvProgCreateCtrl($scope, IvProgSource, $filter){
 					strCode+= 'function loop'+node.id+'(){';
 					strCode+= '	return next(function(){})'; // apenas para poder encadear
 					if(node.nodes.length>0){
-						strCode+= $scope.genNode(node.nodes);
+						strCode+= $scope.genNode(node.nodes, vars);
 					}
 					strCode+='	.next(function(){';
 					//strCode+='		writer("i'+node.id+'"+i'+node.id+');'
@@ -268,11 +346,13 @@ function IvProgCreateCtrl($scope, IvProgSource, $filter){
 				}
 			}
 			if(node.type=="attr"){
-				strCode+= '.next(function () {';
-				strCode+="		var_"+node.variable+"=";
-				strCode+="			("+$scope.genExp(node.exp)+")";
-				strCode+="		;";
-				strCode+= '})';
+				if(node.variable!=""){
+					strCode+= '.next(function () {';
+					strCode+="		var_"+node.variable+"=";
+					strCode+="			("+$scope.genExp(node.exp, vars[node.variable].type)+")";
+					strCode+="		;";
+					strCode+= '})';
+				}
 			}
 			if(node.type=="read"){
 				strCode+= '.next(function () {';
@@ -297,22 +377,23 @@ function IvProgCreateCtrl($scope, IvProgSource, $filter){
 				
 				strCode+= '})';
 			}
-			/*if(node.nodes.length>0){
-				strCode += $scope.genCode(node.nodes);
-			}*/
 		});
 		return strCode;
 	}
-	$scope.genExp = function(exp){
+	$scope.genExp = function(exp, type){
 		var strCode = "";
 		
 		angular.forEach(exp, function(ex, key){
 			if(ex.t=="var"){
 				strCode+=" var_"+ex.v+" ";
 			}else if(ex.t=="val"){
-				strCode+=" "+ex.v+" ";
+				if(type=="string"){
+					strCode+=" \" "+ex.v+"\" ";
+				}else{
+					strCode+=" "+ex.v+" ";
+				}
 			}else if(ex.t=="exp"){
-				strCode+=" ( "+$scope.genExp(ex.exp)+" ) ";
+				strCode+=" ( "+$scope.genExp(ex.exp, type)+" ) ";
 			}
 			if(key<exp.length-1){
 				strCode+=ex.o;
@@ -330,6 +411,9 @@ function IvProgCreateCtrl($scope, IvProgSource, $filter){
 			node.simpleVariable = "";
 		}
 		writer(node.isValue);
+	}
+	$scope.childrenVisible = function(node){
+		node.isChildrenVisible = !node.isChildrenVisible;
 	}
 
 	$scope.add = function(parent, type, name) {
@@ -357,6 +441,7 @@ function IvProgCreateCtrl($scope, IvProgSource, $filter){
 			newNode.endValue = 5;
 			newNode.increment = 1;
 			newNode.variable = "";
+			newNode.isChildrenVisible = true;
 		}
 		if(type=="attr"){
 			newNode.id = "attr_"+newNode.id;

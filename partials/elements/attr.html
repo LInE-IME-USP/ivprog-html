@@ -1,0 +1,22 @@
+<div class="instr attr">
+    <div class="handle"><i class="fa fa-sort"></i></div>
+    <button class="btn btn-danger btn-sm btn-delete" ng-click="removeItem(node.parent, node)"><i class="fa fa-minus"></i></button>
+        <span select-variable="node.variable" select-vars="program.functions[currentFunction].vars" type="''"></span>
+        <span ng-show="node.variable==''"> « selecione uma variável</span>
+        
+        <span ng-hide="node.variable==''">  recebe 
+            <span edit-in-place="node.value"></span>
+            <span ng-repeat="ex in node.exp">
+                <span edit-expression="ex" type="program.functions[currentFunction].vars[node.variable].type" vars="program.functions[currentFunction].vars"></span>
+            </span>
+            <span class="dropdown">
+                    <button class="btn btn-mini btn-info btn-xs" data-toggle="dropdown"><i class="fa fa-align-justify"></i></button>
+                    <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                        <li><a role="menuitem" ng-click="addElVar(node.exp)">Variável</a></li>
+                        <li><a role="menuitem" ng-click="addElVal(node.exp)">Valor</a></li>
+                        <li ng-show="program.functions[currentFunction].vars[node.variable].type=='boolean'"><a role="menuitem" ng-click="addElExpB(node.exp)">Expressão Booleana</a></li>
+                    </ul>
+            </span>
+        </span>
+</div>
+<span class="badge badge-important pull-right" ng-show="isValidAttr(node.exp)"><i class="fa fa-exclamation-triangle"></i></span>

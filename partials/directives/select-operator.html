@@ -1,0 +1,11 @@
+<span class="dropdown select-variable-value" ng-class="{'need-to-set': value==''}">
+	<a id="drop1" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">
+		<span ng-show="value==''"><i>selecionar operação</i></span>
+		<span ng-hide="value==''">{{operators[value].display}}</span> <b class="caret"></b>
+	</a>
+	<ul class="dropdown-menu" role="menu" aria-labelledby="drop1">
+		<li ng-repeat="op in operators" ng-show="op.compatible.indexOf(type)>=0">
+			<a ng-click="setValue(op)">{{op.display}}</a>
+		</li>
+	</ul>
+</span>
