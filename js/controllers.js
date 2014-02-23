@@ -290,10 +290,17 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 		angular.forEach(nodes, function(node, key){
 			if(node.type=="write"){
 				if(node.variable!=''){
+					var v = $scope.program.functions[$scope.currentFunction].vars[node.variable];
 					strCode += ".next(function(){";
-					strCode += "writer(";
-					strCode += "var_"+node.variable;
-					strCode += ");})";
+					
+					if(v.type=="boolean"){
+						strCode+="if(var_"+node.variable+"){ writer('Verdadeiro'); }else{ writer('Falso'); }";
+					}else{
+						strCode += "writer(";
+						strCode += "var_"+node.variable;
+						strCode += ");";
+					}
+					strCode += "})";
 				}
 			}
 			if(node.type=="for"){
@@ -364,15 +371,19 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 				strCode+= 'next(function(a){';
 				strCode+= '		console.log("Valor lido: "+a);';
 				var v = $scope.program.functions[$scope.currentFunction].vars[node.variable];
+				strCode+= '/* '+v.type+' */';
 				if(v.type=="int"){
 					strCode+= "		var_"+node.variable +" = parseInt(a);";	
-				}else if(v.type="float"){
-					strCode+= "		var_"+node.variable +" = parseFloat(a);";
-				}else if(v.type="boolean"){
+				}else if(v.type=="float"){
+					strCode+= "		var_"+node.variable +" = parseFloat(a); /* pq cai aqui */";
+				}else if(v.type=="boolean"){
+					// tratar boolean depois
+					strCode+= "		var_"+node.variable +" = a;";
+				}else if(v.type=="string"){
 					// tratar boolean depois
 					strCode+= "		var_"+node.variable +" = a;";
 				}else{
-					strCode+= "		var_"+node.variable +" = a;";
+					strCode+= "		var_"+node.variable +" = a; ";
 				}
 				
 				strCode+= '})';
@@ -426,8 +437,14 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 		    			};
 
 		// especifico de cada estrutura
+		if(type=="if"){
+			newNode.exp = [];
+			newNode.nodes1 = [];
+			newNode.nodes2 = [];
+		}
 		if(type=="read"){
 			newNode.message = "Por favor digite um valor:";
+			newNode.variable = "";
 		}
 		if(type=="write"){
 			newNode.variable = "";

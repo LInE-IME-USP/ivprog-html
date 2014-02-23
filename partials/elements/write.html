@@ -2,7 +2,7 @@
 	<div class="handle"><i class="fa fa-sort"></i></div>
     {{node.name}}
     <button class="btn btn-danger btn-sm btn-delete" ng-click="removeItem(node.parent, node)"><i class="fa fa-minus"></i></button>
-    (<span select-variable="node.variable" select-model="node.variable" select-vars="program.functions[currentFunction].vars" type="''"></span>)
+    (<span select-variable="node.variable" select-vars="program.functions[currentFunction].vars" type="''"></span>)
     
     <span class="pull-right" ng-show="node.variable==''"><i class="fa fa-exclamation-triangle fa-lg"></i></span>
 </div>  

@@ -18,22 +18,6 @@
     <span ng-include="'partials/elements/btns.html'"></span>
 </script>
 
-<script type="text/ng-template"  id="if.html">
-    <div class="instr repeat">
-        <div class="handle"><i class="fa fa-sort"></i></div>
-            {{node.name}} 
-                    <select ng-model='teste'>
-                        <option ng-repeat="var in program.functions[currentFunction].vars">{{var.name}}</option>
-                    </select> igual <input type="text" value="VAR">
-    <button class="btn pull-right" ng-click="removeItem(node.parent, node)"><i class="icon icon-trash"></i></button>
-    <button ng-click="delete(node)" ng-show="node.nodes.length > 0" class="btn">Limpar</button>
-            <span ng-include="'nodes.html'"></span>
-            <span ng-include="'partials/elements/btns.html'"></span>
-        </div>
-    </div>
-</script>
-
-
 
 <script type="text/ng-template"  id="var.html">
     <i>{{node.name}}</i> <span edit-in-place='node.data.varName'></span> = <input type="text" value="VAR"> {{node.data.varName}}
@@ -102,7 +86,6 @@
                         <i class="glyphicon glyphicon-plus"></i> Instrução
                       </button>
                       <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
-                        <li role="presentation" class="dropdown-header">Adicionar instrução</li>
                         <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(program.functions[currentFunction].nodes, 'if', 'se')" href="javascript:;">Condição</a></li>
                         <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(program.functions[currentFunction].nodes, 'read', 'ler')" href="javascript:;">Ler dados do usuário</a></li>
                         <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(program.functions[currentFunction].nodes, 'write', 'escrever')"  href="javascript:;">Escrever</a></li>

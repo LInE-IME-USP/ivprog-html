@@ -1,0 +1,23 @@
+<div class="instr repeat">
+        <div class="handle"><i class="fa fa-sort"></i></div>
+            se ( 
+            <span ng-repeat="ex in node.exp">
+                <span edit-expression="ex" type="'boolean'" vars="program.functions[currentFunction].vars"></span>
+            </span>
+
+            <span class="dropdown">
+                    <button class="btn btn-mini btn-info btn-xs" data-toggle="dropdown"><i class="fa fa-align-justify"></i></button>
+                    <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                        <li><a role="menuitem" ng-click="addElVar(node.exp)">Variável</a></li>
+                        <li><a role="menuitem" ng-click="addElVal(node.exp)">Valor</a></li>
+                        <li ng-show="program.functions[currentFunction].vars[node.variable].type=='boolean'"><a role="menuitem" ng-click="addElExpB(node.exp)">Expressão Booleana</a></li>
+                    </ul>
+            </span>
+            )
+
+    <button class="btn pull-right" ng-click="removeItem(node.parent, node)"><i class="icon icon-trash"></i></button>
+    <button ng-click="delete(node)" ng-show="node.nodes.length > 0" class="btn">Limpar</button>
+            <span ng-include="'nodes.html'"></span>
+            <span ng-include="'partials/elements/btns.html'"></span>
+        </div>
+    </div>
