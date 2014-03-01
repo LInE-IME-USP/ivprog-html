@@ -86,11 +86,14 @@
                         <i class="glyphicon glyphicon-plus"></i> Instrução
                       </button>
                       <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
-                        <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(program.functions[currentFunction].nodes, 'if', 'se')" href="javascript:;">Condição</a></li>
-                        <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(program.functions[currentFunction].nodes, 'read', 'ler')" href="javascript:;">Ler dados do usuário</a></li>
-                        <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(program.functions[currentFunction].nodes, 'write', 'escrever')"  href="javascript:;">Escrever</a></li>
-                        <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(program.functions[currentFunction].nodes, 'for', 'repetir')" href="javascript:;">Repetir</a></li>
-                        <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(program.functions[currentFunction].nodes, 'attr', 'attr')" href="javascript:;">Atribuição</a></li>
+                        <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(program.functions[currentFunction].nodes, 'root_'+currentFunction, 'attr', 'attr')" href="javascript:;"><img src="img/att.png" width="20" height="20" /> Atribuição</a></li>
+
+                        <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(program.functions[currentFunction].nodes, 'root_'+currentFunction, 'if', 'se')" href="javascript:;"><img src="img/if.png" width="20" height="20" /> Se verdadeiro então</a></li>
+
+                        <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(program.functions[currentFunction].nodes, 'root_'+currentFunction, 'for', 'repetir')" href="javascript:;"><img src="img/loop-n.png" width="20" height="20" /> Repita N vezes</a></li>
+
+                        <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(program.functions[currentFunction].nodes, 'root_'+currentFunction, 'read', 'ler')" href="javascript:;"><img src="img/download.png" /> Leitura de dados</a></li>
+                        <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(program.functions[currentFunction].nodes, 'root_'+currentFunction, 'write', 'escrever')"  href="javascript:;"><img src="img/upload.png" /> Escrita de dados</a></li>
                       </ul>
                     </div>
                 </div>

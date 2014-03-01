@@ -6,11 +6,11 @@
       </button>
       <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
         <li role="presentation" class="dropdown-header">Adicionar instrução</li>
-        <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(node.nodes, 'if', 'se')" href="javascript:;">Condição</a></li>
-        <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(node.nodes, 'read', 'ler')" href="javascript:;">Ler dados do usuário</a></li>
-        <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(node.nodes, 'write', 'escrever')"  href="javascript:;">Escrever</a></li>
-        <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(node.nodes, 'for', 'repetir')" href="javascript:;">Repetir</a></li>
-        <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(node.nodes, 'attr', 'attr')" href="javascript:;">Atribuição</a></li>
+        <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(node.nodes, node.id, 'if', 'se')" href="javascript:;">Condição</a></li>
+        <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(node.nodes, node.id, 'read', 'ler')" href="javascript:;">Ler dados do usuário</a></li>
+        <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(node.nodes, node.id, 'write', 'escrever')"  href="javascript:;">Escrever</a></li>
+        <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(node.nodes, node.id, 'for', 'repetir')" href="javascript:;">Repetir</a></li>
+        <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(node.nodes, node.id, 'attr', 'attr')" href="javascript:;">Atribuição</a></li>
       </ul>
     </div>
 </div>

@@ -8,6 +8,8 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 	$scope.vars = [];
 	$scope.params = [];
 
+	$scope.mapping = {};
+
 
 	// undo - redo control
 	$scope.historyStack = -1;
@@ -98,16 +100,16 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 		v.push({
 						t: "var",
 						v: "",
-						o: "+",
-						p: v
+						o: "",
+						p: ''//v
 					});
 	}
 	$scope.addElVal = function(v){
 		v.push({
 						t: "val",
 						v: 0,
-						o: "+",
-						p: v
+						o: "",
+						p: ''//v
 					});
 	}
 	$scope.addElExpB = function(v){
@@ -125,7 +127,7 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 							op: ">"
 						},
 						o: "&&",
-						p: v
+						p: ''//v
 					});
 	}
 	$scope.isolar = function(item){
@@ -139,7 +141,7 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 	
 
 	$scope.getTemplate = function(x){
-		return 'partials/elements/'+x.type+'.html';
+		return 'partials/elements/'+x.type+'.html'+"?t="+cacheTime;
 	}
 	$scope.addParam = function(){
 		//var ind = $scope.params.length;
@@ -188,7 +190,7 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 	}
 	$scope.addVar = function(){
 		// TODO: checar se alterou o valor
-        //$rootScope.snapshot('Variável adicionada', true);
+        $rootScope.snapshot('Variável adicionada', true);
 		var ind = $scope.itemCount;
 		var id = "var"+$scope.itemCount++;
 		$scope.program.functions[$scope.currentFunction].vars[id] = ({ name: 'newVar'+ind, type: 'float', initialValue: 0, id: id });
@@ -209,10 +211,17 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 		});
 	}
 	$scope.removeVar = function(v){
+		$rootScope.snapshot('Variável removida', true);
 		$scope.removeVarRec($scope.program.functions[$scope.currentFunction].nodes, v.id);
 		delete $scope.program.functions[$scope.currentFunction].vars[v.id];
 	}
 	$scope.removeItem = function(parent, item){
+		// TODO: tratar para os outros functions
+		if(parent=="root_0"){
+			parent = $scope.program.functions[0].nodes;
+		}else{
+			parent = $scope.mapping[parent].nodes;
+		}
 		parent.splice(parent.indexOf(item),1);
 	}
 	$scope.isValidAttr = function(attr){
@@ -225,36 +234,106 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 		return false;
 	}
 	$scope.sortableOptions = {
-	    handle: '.handle'
+	    handle: '.handle',
+        placeholder: "apps",
+        connectWith: ".apps-container"
 	};
 	$scope.delete = function(data) {
 	    data.nodes = [];
 	};
 	$scope.run = function(){
-		var code = $scope.genCode($scope.program);
-		console.log(code);
-		window.eval(code);
+		if(!$scope.validateEverything($scope.program)){
+			writer("<i class='fa fa-exclamation-triangle'></i> Existem campos vazios. Preencha os campos com borda vermelha para executar o algoritmo corretamente.");
+		}else{
+			var code = $scope.genCode($scope.program);
+			console.log(code);
+			window.eval(code);
 
-		$("#valor").unbind('keydown');
-		$("#valor").keydown(function( event ) {
-			if ( event.which == 13 ) {
+			$("#valor").unbind('keydown');
+			$("#valor").keydown(function( event ) {
+				if ( event.which == 13 ) {
+					$('#readData').modal('hide');
+					var valor = $("#valor").val();
+					$("#valor").val("");
+					deferred.call(valor);
+					event.preventDefault();
+				}
+			});
+			$("#btnOk").unbind('click');
+			$("#btnOk").click(function(){
 				$('#readData').modal('hide');
 				var valor = $("#valor").val();
 				$("#valor").val("");
 				deferred.call(valor);
-				event.preventDefault();
-			}
-		});
-		$("#btnOk").unbind('click');
-		$("#btnOk").click(function(){
-			$('#readData').modal('hide');
-			var valor = $("#valor").val();
-			$("#valor").val("");
-			deferred.call(valor);
-		});
+			});
+		}
 	}
 	$scope.clearOutput = function(){
 		$(".output").html("");
+	}
+	$scope.validateEverything = function(funcs){
+		$(".node-with-error").removeClass("node-with-error");
+		var ret = true;
+		angular.forEach(funcs.functions, function(func, key){
+			ret = ret && $scope.validateNode(func.nodes, func.vars);
+		});
+		return ret;
+	}
+	$scope.validateNode = function(nodes, vars){
+		var ret = true;
+		angular.forEach(nodes, function(node, key){
+			if (node.type=="write"){
+				if(node.variable==""){
+					$("#node"+node.id).find(".select").addClass("node-with-error");
+					ret = false;
+				}
+			}
+			if(node.type=="read"){
+				if(node.variable==""){
+					$("#node"+node.id).find(".select").addClass("node-with-error");
+					ret = false;
+				}
+			}
+			if(node.type=="for"){
+				if(node.forType==1){
+					if((node.limitType=="var")&&(node.limit=="")){
+						$("#node"+node.id).find(".for1").find(".select").addClass("node-with-error");
+						ret = false;
+					}
+				}
+				if(node.forType==2){
+					if((node.limitType=="var")&&(node.limit=="")){
+						$("#node"+node.id).find(".for1").find(".select").addClass("node-with-error");
+						ret = false;
+					}
+					if(node.using==""){
+						$("#node"+node.id).find(".for2").addClass("node-with-error");
+						ret = false;
+					}	
+				}
+				if(node.forType==3){
+					if((node.limitType=="var")&&(node.limit=="")){
+						$("#node"+node.id).find(".for1").find(".select").addClass("node-with-error");
+						ret = false;
+					}
+					if(node.using==""){
+						$("#node"+node.id).find(".for2").addClass("node-with-error");
+						ret = false;
+					}
+					if((node.initialType=="var")&&(node.initial=="")){
+						ret = false;
+					}
+					if((node.initialType=="val")&&(node.limitType=="val")&&(node.initial>node.limit)){
+						ret = false;
+					}
+					if((node.stepType=="var")&&(node.step=="")){
+						$("#node"+node.id).find(".for3").find(".select").addClass("node-with-error");
+						ret = false;
+					}
+				}
+			}
+		});
+		return ret;
 	}
 	$scope.genCode = function(funcs){
 		var strCode = "var t = function(){";
@@ -304,13 +383,70 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 				}
 			}
 			if(node.type=="for"){
-				console.log(node);
-				if(((node.simple)&&(node.times>0))||((node.simple)&&(node.simpleVariable!=""))){
+				
+				if(node.forType==1){
+					// for simples
 					strCode+= '.next(function(){';
-					if(node.isValue){
-						strCode+= 'var i'+node.id+' = 0;'
+					strCode+= 'var i'+node.id+ ' = 0;';
+					strCode+= 'function loop'+node.id+'(){';
+					strCode+= '	return next(function(){})'; // apenas para poder encadear
+					if(node.nodes.length>0){
+						strCode+= $scope.genNode(node.nodes, vars);
+					}
+					strCode+='	.next(function(){';
+					strCode+='		++i'+node.id+';';
+					if(node.limitType=="val"){
+						strCode+='		if(i'+node.id+'<'+node.limit+'){';
 					}else{
-						strCode+= 'var_'+node.simpleVariable+' = 0;'
+						strCode+='		if(i'+node.id+'<'+' var_'+node.limit+'){';
+					}
+					strCode+='			return loop'+node.id+'();';
+					strCode+='		}'
+					strCode+='	});';
+					strCode+='}';
+					if(node.limitType=="val"){
+						strCode+='		if(i'+node.id+'<'+node.limit+'){';
+					}else{
+						strCode+='		if(i'+node.id+'<'+' var_'+node.limit+'){';
+					}
+					strCode+='return loop'+node.id+'();';
+					strCode+='}';
+					strCode+='})';
+				}else if(node.forType==2){
+					// for mediano
+					strCode+= '.next(function(){';
+					strCode+= '	var_'+node.using+ ' = 0;';
+					strCode+= 'function loop'+node.id+'(){';
+					strCode+= '	return next(function(){})'; // apenas para poder encadear
+					if(node.nodes.length>0){
+						strCode+= $scope.genNode(node.nodes, vars);
+					}
+					strCode+='	.next(function(){';
+					strCode+='		++var_'+node.using+';';
+					if(node.limitType=="val"){
+						strCode+='		if(var_'+node.using+'<'+node.limit+'){';
+					}else{
+						strCode+='		if(var_'+node.using+'<'+' var_'+node.limit+'){';
+					}
+					strCode+='			return loop'+node.id+'();';
+					strCode+='		}'
+					strCode+='	});';
+					strCode+='}';
+					if(node.limitType=="val"){
+						strCode+='		if(var_'+node.using+'<'+node.limit+'){';
+					}else{
+						strCode+='		if(var_'+node.using+'<'+' var_'+node.limit+'){';
+					}
+					strCode+='return loop'+node.id+'();';
+					strCode+='}';
+					strCode+='})';
+				}else if(node.forType==3){
+					// for hard rs
+					strCode+= '.next(function(){';
+					if(node.initialType=="val"){
+						strCode+= '	var_'+node.using+ ' = '+node.initial+';';
+					}else{
+						strCode+= '	var_'+node.using+ ' = var_'+node.initial+';';
 					}
 					strCode+= 'function loop'+node.id+'(){';
 					strCode+= '	return next(function(){})'; // apenas para poder encadear
@@ -318,38 +454,29 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 						strCode+= $scope.genNode(node.nodes, vars);
 					}
 					strCode+='	.next(function(){';
-					//strCode+='		writer("i'+node.id+'"+i'+node.id+');'
-					if(node.isValue){
-						strCode+='		++i'+node.id+';';	
-						strCode+='		if(i'+node.id+'<'+node.times+'){';
+					if(node.stepType=="val"){
+						strCode+='		var_'+node.using+'+= '+node.step+';';
 					}else{
-						strCode+='		++var_'+node.simpleVariable+';';
-						strCode+='		if(var_'+node.simpleVariable+'<'+node.times+'){';
+						strCode+='		var_'+node.using+'+= var_'+node.step+';';
 					}
 					
-					
+					if(node.limitType=="val"){
+						strCode+='		if(var_'+node.using+'<'+node.limit+'){';
+					}else{
+						strCode+='		if(var_'+node.using+'<'+' var_'+node.limit+'){';
+					}
 					strCode+='			return loop'+node.id+'();';
 					strCode+='		}'
 					strCode+='	});';
 					strCode+='}';
-					strCode+='return loop'+node.id+'();})';
-				}else{
-					strCode+= '.next(function(){';
-					strCode+= ''+node.simpleVariable+' = '+node.initialValue+';'
-					strCode+= 'function loop'+node.id+'(){';
-					strCode+= '	return next(function(){})'; // apenas para poder encadear
-					if(node.nodes.length>0){
-						strCode+= $scope.genNode(node.nodes);
+					if(node.limitType=="val"){
+						strCode+='		if(var_'+node.using+'<'+node.limit+'){';
+					}else{
+						strCode+='		if(var_'+node.using+'<'+' var_'+node.limit+'){';
 					}
-					strCode+='	.next(function(){';
-					//strCode+='		writer("i'+node.id+'"+i'+node.id+');'
-					strCode+='		++'+node.simpleVariable+';';
-					strCode+='		if('+node.simpleVariable+'<'+node.endValue+'){';
-					strCode+='			return loop'+node.id+'();';
-					strCode+='		}'
-					strCode+='	});';
+					strCode+='return loop'+node.id+'();';
 					strCode+='}';
-					strCode+='return loop'+node.id+'();})';
+					strCode+='})';
 				}
 			}
 			if(node.type=="attr"){
@@ -413,8 +540,8 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 		return strCode;
 	}
 	
-	$scope.changeForType = function(node){
-		node.simple = !node.simple;
+	$scope.changeForType = function(node, v){
+		node.forType +=v;
 	}
 	$scope.changeForValue = function(node){
 		node.isValue = !node.isValue;
@@ -427,13 +554,13 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 		node.isChildrenVisible = !node.isChildrenVisible;
 	}
 
-	$scope.add = function(parent, type, name) {
+	$scope.add = function(parent, parentId, type, name) {
 	    var newNode = {
 	    					id: $scope.itemCount++,
 		    				type: type,
 		    				name: name,
 		    				nodes: [],
-		    				parent: parent
+		    				parent: parentId
 		    			};
 
 		// especifico de cada estrutura
@@ -450,7 +577,23 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 			newNode.variable = "";
 		}
 		if(type=="for"){
+			newNode.forType = 1; // 1 SIMPLE, 2 +-, 3 COMPLETE
+
+			newNode.initial = 1;
+			newNode.initialType = "val";
+
+			newNode.limit = 5;
+			newNode.limitType = "val";
+
+			newNode.using = "";
+
+			newNode.step = 1;
+			newNode.stepType = "val";
+
+			newNode.isChildrenVisible = true;
+
 			newNode.times = 5;
+			newNode.timesType = 5;
 			newNode.simple = true;
 			newNode.isValue = true;
 			newNode.simpleVariable = "";
@@ -458,7 +601,7 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 			newNode.endValue = 5;
 			newNode.increment = 1;
 			newNode.variable = "";
-			newNode.isChildrenVisible = true;
+			
 		}
 		if(type=="attr"){
 			newNode.id = "attr_"+newNode.id;
@@ -467,6 +610,7 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 			delete newNode.nodes;
 		}
 		parent.push(newNode);
+		$scope.mapping[newNode.id] = newNode;
 	};
 }
 function IvProgAbertoCtrl($scope){

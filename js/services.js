@@ -15,6 +15,13 @@ ivprogModule.factory('IvProgSourceParts', function(){
 var writer = function(t){
     $('.output').append(t+'<br>');
 }
+var writerError = function(id, message){
+    $('.output').append("<a class='error' href='javascript:;' onclick='highlightError(\""+id+"\")'>"+message+"</a><br>");
+}
+var highlightError = function(id){
+    $(".node-with-error").removeClass("node-with-error");
+    $(id).addClass("node-with-error");
+}
 var processNodes = function(nodes){
   var scriptStr = "";
   angular.forEach(nodes, function(node, key){

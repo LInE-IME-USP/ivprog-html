@@ -1,10 +1,16 @@
 var ivProgApp = angular.module('ivprog', ['ivprogServices', 'ui']);
 
+var cacheTime = new Date().getTime(); // change to string empty to production
+
 ivProgApp.config(['$routeProvider', function($routeProvider) {
   $routeProvider.
       when('/startup', { templateUrl: 'partials/start.html', controller: StartCtrl }).
       when('/opened/:exercicioId', { templateUrl: 'partials/opened.html', controller: IvProgAbertoCtrl }).
-      when('/create/', { templateUrl: 'partials/create.html', controller: IvProgCreateCtrl }).
+      when('/create/', 
+        { 
+          templateUrl: 'partials/create.html'+"?t="+cacheTime, 
+          controller: IvProgCreateCtrl
+      }).
       otherwise({redirectTo: '/create'}); // era startup
 }]);
 
@@ -90,7 +96,7 @@ ivProgApp.directive('editInPlaceVarValue', function($rootScope) {
       value: '=editInPlaceVarValue',
       type: '=type'
     },
-    templateUrl: 'partials/directives/edit-in-place-var-values.html',
+    templateUrl: 'partials/directives/edit-in-place-var-values.html'+"?t="+cacheTime,
     link: function ( $scope, element, attrs ) {
       // Let's get a reference to the input element, as we'll want to reference it.
       //var inputElement = angular.element( element.children()[1] );
@@ -168,6 +174,33 @@ ivProgApp.directive('editInPlaceVarValue', function($rootScope) {
   };
 });
 
+ivProgApp.directive('varValue', function($rootScope) {
+  return {
+    restrict: 'A',
+    scope: { 
+      value: '=varValue',
+      vars: '=vars',
+      ttype: '=ttype',
+      type: '=type'
+    },
+    templateUrl: 'partials/directives/var-value.html'+"?t="+cacheTime,
+    link: function ( $scope, element, attrs ) {
+
+
+      $scope.alternate = function(){
+        if($scope.ttype=="var"){
+          $scope.ttype = "val";
+          $scope.value = 5;
+        }else{
+          $scope.ttype = "var";
+          $scope.value = '';
+        }
+      }
+
+    }
+  };
+});
+
 ivProgApp.directive('editExpression', function() {
   return {
     restrict: 'A',
@@ -176,7 +209,7 @@ ivProgApp.directive('editExpression', function() {
       type: '=type',
       vars: '=vars'
     },
-    templateUrl: 'partials/directives/edit-expression.html',
+    templateUrl: 'partials/directives/edit-expression.html'+"?t="+cacheTime,
     link: function ( $scope, element, attrs ) {
       // Let's get a reference to the input element, as we'll want to reference it.
       //var inputElement = angular.element( element.children()[1] );
@@ -377,7 +410,7 @@ ivProgApp.directive('selectVariable', function() {
       vars: '=selectVars',
       type: '=type'
     },
-    templateUrl: 'partials/directives/select-variable.html',
+    templateUrl: 'partials/directives/select-variable.html'+"?t="+cacheTime,
     link: function ( $scope, element, attrs ) {
       // Let's get a reference to the input element, as we'll want to reference it.
       var inputElement = angular.element( element.children()[1] );
@@ -435,7 +468,7 @@ ivProgApp.directive('selectOperator', function() {
       vars: '=selectVars',
       type: '=type'
     },
-    templateUrl: 'partials/directives/select-operator.html',
+    templateUrl: 'partials/directives/select-operator.html'+"?t="+cacheTime,
     link: function ( $scope, element, attrs ) {
       // Let's get a reference to the input element, as we'll want to reference it.
       var inputElement = angular.element( element.children()[1] );
@@ -531,7 +564,7 @@ ivProgApp.directive('selectVariableExpression', function() {
       vars: '=vars',
       type: '=type'
     },
-    templateUrl: 'partials/directives/select-variable-expression.html',
+    templateUrl: 'partials/directives/select-variable-expression.html'+"?t="+cacheTime,
     link: function ( $scope, element, attrs ) {
       // Let's get a reference to the input element, as we'll want to reference it.
       var inputElement = angular.element( element.children()[1] );
@@ -610,7 +643,7 @@ ivProgApp.directive('booleanExpression', function() {
       ex: '=ex', 
       vars: '=vars'
     },
-    templateUrl: 'partials/directives/boolean-expression.html',
+    templateUrl: 'partials/directives/boolean-expression.html'+"?t="+cacheTime,
     link: function ( $scope, element, attrs ) {
       
       

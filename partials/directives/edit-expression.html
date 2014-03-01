@@ -1,7 +1,7 @@
     <span ng-show="ex.t=='exp'">
         (<span ng-repeat="ex in ex.exp">
             {{ex}}
-            <span edit-in-place-var-value='ex.v' type='type'></span>++
+            <span edit-in-place-var-value='ex.v' type='type'></span>
             </span> 
             <span class="dropdown">
             <button class="btn btn-mini" data-toggle="dropdown"><i class="icon icon-align-justify"></i></button>
@@ -12,6 +12,8 @@
             </ul>
     </span>)
     </span>
+    <span ng-hide="ex.o==''">&nbsp;<span select-operator="ex.o" ex="ex" select-model="ex.v" select-vars="program.functions[currentFunction].vars" type="type"></span>&nbsp;</span>
+
     <span ng-show="ex.t=='val'">
         <span edit-in-place-var-value='ex.v' type='type'></span>
     </span>
@@ -21,4 +23,3 @@
     <span ng-show="ex.t=='expB'">
         <span boolean-expression="ex.v" ex="ex" vars="vars"></span>
     </span>
-    <span ng-hide="$last">&nbsp;<span select-operator="ex.o" ex="ex" select-model="ex.v" select-vars="program.functions[currentFunction].vars" type="type"></span>&nbsp;</span>
