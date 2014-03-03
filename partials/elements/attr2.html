@@ -5,12 +5,10 @@
         <span ng-show="node.variable==''"> « selecione uma variável</span>
         
         <span ng-hide="node.variable==''">  recebe 
-            (
-            
-                <span edit-expression-java="node.exp" type="program.functions[currentFunction].vars[node.variable].type" vars="program.functions[currentFunction].vars"></span>
-            
-            )
-
+            <span edit-in-place="node.value"></span>
+            <span ng-repeat="ex in node.exp">
+                <span edit-expression="ex" type="program.functions[currentFunction].vars[node.variable].type" vars="program.functions[currentFunction].vars"></span>
+            </span>
             <span class="dropdown">
                     <button class="btn btn-mini btn-xs" data-toggle="dropdown"><img src="img/operations.png" /></button>
                     <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
@@ -21,3 +19,4 @@
             </span>
         </span>
 </div>
+<span class="badge badge-important pull-right" ng-show="isValidAttr(node.exp)"><i class="fa fa-exclamation-triangle"></i></span>

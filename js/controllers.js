@@ -606,8 +606,16 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 		if(type=="attr"){
 			newNode.id = "attr_"+newNode.id;
 			newNode.variable = "";
-			newNode.exp = [];
+			//newNode.exp = [];
+			/*newNode.exp = {
+				op1: '',
+				op1T : '',
+				op: '',
+				op2: '',
+				op2T: ''
+			};*/
 			delete newNode.nodes;
+			newNode.exp = [];
 		}
 		parent.push(newNode);
 		$scope.mapping[newNode.id] = newNode;

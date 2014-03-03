@@ -1,0 +1,103 @@
+    <script type="text/ng-template"  id="exp.html">
+        (<span ng-repeat="item in item.v">
+            <span ng-show="item.t=='exp'">
+                <span ng-include="'exp.html'"></span>
+            </span>
+            <span ng-show="item.t=='var'">
+                <span select-variable="item.v" select-vars="vars" type="type"></span>
+            </span>
+            <span ng-show="item.t=='val'">
+                <span edit-in-place-var-value='item.v' type='type'></span>
+            </span>
+
+            <span class="dropdown" ng-show="item.t=='val' || item.t=='var'">
+                <a href="javascript:;" class="btn btn-mini" data-toggle="dropdown"><img src="img/operations.png" /></a>
+                <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                    <li><a role="menuitem" ng-click="selectOp(item, '+')">+</a></li>
+                    <li><a role="menuitem" ng-click="ex.op='-'">-</a></li>
+                    <li><a role="menuitem" ng-click="ex.op1T=''; op1=''">Limpar</a></li>
+                </ul>
+            </span>
+
+            <span ng-show="item.t=='op'">
+                <span select-operator="item.v" type="type"></span>
+            </span>
+        </span>
+
+        <span ng-show="item.v.length==2" class="dropdown">
+            <a href="javascript:;" class="btn btn-mini" data-toggle="dropdown">Selecione...</a>
+            <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                <li><a role="menuitem" ng-click="addEl(item.v, 'var')">Variável</a></li>
+                <li><a role="menuitem" ng-click="addEl(item.v, 'val')">Valor</a></li>
+            </ul>
+        </span>
+
+        )
+    </script>
+
+
+
+    <!-- nao add nada ainda -->
+    <span ng-show="ex.length==0" class="dropdown">
+        <a href="javascript:;" class="btn btn-mini" data-toggle="dropdown">Selecione...</a>
+        <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+            <li><a role="menuitem" ng-click="addEl(ex, 'var')">Variável</a></li>
+            <li><a role="menuitem" ng-click="addEl(ex, 'val')">Valor</a></li>
+        </ul>
+    </span>
+
+    <span ng-repeat="item in ex">
+        
+        <span ng-show="item.t=='exp'">
+            <!--span edit-expression-java="item.v" vars="vars" type="type"></span-->
+            <span ng-include="'exp.html'"></span>
+        </span>
+        <span ng-show="item.t=='var'">
+            <span select-variable="item.v" select-vars="vars" type="type"></span>
+            <span class="dropdown">
+                <a href="javascript:;" class="btn btn-mini" data-toggle="dropdown"><img src="img/operations.png" /></a>
+                <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                    <li><a role="menuitem" ng-click="selectOp(item, '+')">+</a></li>
+                    <li><a role="menuitem" ng-click="ex.op='-'">-</a></li>
+                    <li><a role="menuitem" ng-click="ex.op1T=''; op1=''">Limpar</a></li>
+                </ul>
+            </span>
+        </span>
+        <span ng-show="item.t=='val'">VAL</span>
+        <span ng-show="item.t=='op'">
+            <span select-operator="item.v" type="type"></span>
+        </span>
+    </span>
+    <span ng-show="ex.length==2" class="dropdown">
+        <a href="javascript:;" class="btn btn-mini" data-toggle="dropdown">Selecione...</a>
+        <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+            <li><a role="menuitem" ng-click="addEl('var')">Variável</a></li>
+            <li><a role="menuitem" ng-click="addEl('val')">Valor</a></li>
+        </ul>
+    </span>
+    <!--
+    <span ng-show="ex.t=='exp'">
+        (<span ng-repeat="ex in ex.exp">
+            
+            <span edit-in-place-var-value='ex.v' type='type'></span>
+            </span> 
+            <span class="dropdown">
+            <button class="btn btn-mini" data-toggle="dropdown"><i class="icon icon-align-justify"></i></button>
+            <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                <li><a role="menuitem" ng-click="addElVar(ex.exp)">Variável</a></li>
+                <li><a role="menuitem" ng-click="addElVal(ex.exp)">Valor</a></li>
+                <li><a role="menuitem" ng-click="addElExpB(ex.exp)">Expressão Booleana</a></li>
+            </ul>
+    </span>)
+    </span>
+    <span ng-hide="ex.o==''">&nbsp;<span select-operator="ex.o" ex="ex" select-model="ex.v" select-vars="program.functions[currentFunction].vars" type="type"></span>&nbsp;</span>
+
+    <span ng-show="ex.t=='val'">
+        <span edit-in-place-var-value='ex.v' type='type'></span>
+    </span>
+    <span ng-show="ex.t=='var'">
+        <span select-variable-expression="ex.v" ex="ex" vars="vars" type="type"></span>
+    </span>
+    <span ng-show="ex.t=='expB'">
+        <span boolean-expression="ex.v" ex="ex" vars="vars"></span>
+    </span>-->

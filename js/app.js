@@ -286,6 +286,35 @@ ivProgApp.directive('editExpression', function() {
   };
 });
 
+ivProgApp.directive('editExpressionJava', function() {
+  return {
+    restrict: 'A',
+    scope: { 
+      ex: '=editExpressionJava',
+      type: '=type',
+      vars: '=vars'
+    },
+    templateUrl: 'partials/directives/edit-expression-java.html'+"?t="+cacheTime,
+    link: function ( $scope, element, attrs ) {
+      console.log($scope.ex);
+      // Let's get a reference to the input element, as we'll want to reference it.
+      $scope.addEl = function(p, type){
+        p.push({ t: type, v: ''});
+      }
+      $scope.selectOp = function(opParent, op){
+        //$scope.ex.push({ t: 'op', v: op});
+        var old = angular.copy(opParent);
+        opParent.v = [];
+        opParent.t = "exp";
+        
+        opParent.v.push(old);
+        opParent.v.push({t: 'op', v: op});
+      }
+    }
+  };
+});
+
+
 ivProgApp.directive('editInPlaceVarName', function() {
   return {
     restrict: 'A',
