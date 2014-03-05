@@ -109,6 +109,14 @@ ivProgApp.directive('editInPlaceVarValue', function($rootScope) {
       // Initially, we're not editing.
       $scope.editing = false;
       
+      $scope.getValue = function(){
+        if($scope.value==""){
+          return "====";
+        }else{
+          return $scope.value;
+        }
+      }
+
       // ng-click handler to activate edit-in-place
       $scope.edit = function () {
         if($scope.type=="boolean"){
@@ -296,10 +304,52 @@ ivProgApp.directive('editExpressionJava', function() {
     },
     templateUrl: 'partials/directives/edit-expression-java.html'+"?t="+cacheTime,
     link: function ( $scope, element, attrs ) {
-      console.log($scope.ex);
+
       // Let's get a reference to the input element, as we'll want to reference it.
+
+      $scope.setType = function(item, type){
+        item.t = type;
+        if(type=='val'){
+          item.v = $scope.getDefaultValue();
+        }
+      }
+
       $scope.addEl = function(p, type){
-        p.push({ t: type, v: ''});
+        if(type=="val"){
+          if($scope.type=="int"){
+            p.push({ t: type, v: 1 });          
+          }else if($scope.type=="float"){
+            p.push({ t: type, v: 1.0 });
+          }else if($scope.type=="boolean"){
+            p.push({ 
+              t: 'expB', 
+              v: [
+                { t: 'var', v: '' },
+                { t: 'opB', v: '' },
+                { t: '', v: '' }
+              ]});
+            //p.push({ t: type, v: false });
+          }else if($scope.type=="string"){
+            p.push({ t: type, v: 'texto' });
+          }else{
+            p.push({ t: type, v: ''});
+          }
+        }else if(type=="var"){
+          p.push({ t: type, v: ''});
+        }
+      }
+      $scope.getDefaultValue = function(){
+          if($scope.type=="int"){
+            return 1;          
+          }else if($scope.type=="float"){
+            return 1.0;
+          }else if($scope.type=="boolean"){
+            return false;
+          }else if($scope.type=="string"){
+            return 'texto';
+          }else{
+            return '';
+          }
       }
       $scope.selectOp = function(opParent, op){
         //$scope.ex.push({ t: 'op', v: op});
@@ -310,10 +360,66 @@ ivProgApp.directive('editExpressionJava', function() {
         opParent.v.push(old);
         opParent.v.push({t: 'op', v: op});
       }
+
+      $scope.cleanOp = function(item){
+        item.t = "";
+        item.v = "";
+      }
+
+      $scope.operators = {
+        "+": {
+                id: "+",
+                display: "Adição",
+                compatible: ["float", "int", "string"]
+        },
+        "-": {
+                id: "-",
+                display: "Subtração",
+                compatible: ["float", "int"]
+        },
+        "/": {
+                id: "/",
+                display: "Divisão",
+                compatible: ["float", "int"]
+        },
+        "*": {
+                id: "*",
+                display: "Multiplicação",
+                compatible: ["float", "int"]
+        },
+        "%": {
+                id: "%",
+                display: "Resto da divisão",
+                compatible: ["float", "int"]
+        },
+        "&&": {
+                id: "&&",
+                display: "E",
+                compatible: ["boolean"]
+        },
+        "||": {
+                id: "||",
+                display: "OU",
+                compatible: ["boolean"]
+        }
+      };
     }
   };
 });
 
+ivProgApp.directive('editExpressionJavaReadOnly', function() {
+  return {
+    restrict: 'A',
+    scope: { 
+      ex: '=editExpressionJavaReadOnly',
+      type: '=type',
+      vars: '=vars'
+    },
+    templateUrl: 'partials/directives/edit-expression-java-read-only.html'+"?t="+cacheTime,
+    link: function ( $scope, element, attrs ) {
+    }
+  };
+});
 
 ivProgApp.directive('editInPlaceVarName', function() {
   return {
@@ -676,8 +782,9 @@ ivProgApp.directive('booleanExpression', function() {
     link: function ( $scope, element, attrs ) {
       
       
-      $scope.setValue = function(v){
-        $scope.value.op = v;
+      $scope.setValue = function(va, v){
+        //$scope.value.op = v;
+        va = v;
       }
       $scope.isolar = function(item){
         item.t = "exp";
@@ -694,6 +801,20 @@ ivProgApp.directive('booleanExpression', function() {
 
       $scope.showOnlyForTypeFilter = function(variable){
         return variable.type==$scope.type;
+      }
+
+      $scope.getDefaultValue = function(type){
+          if(type=="int"){
+            return 1;          
+          }else if(type=="float"){
+            return 1.0;
+          }else if(type=="boolean"){
+            return false;
+          }else if(type=="string"){
+            return 'texto';
+          }else{
+            return '';
+          }
       }
 
 
@@ -733,7 +854,90 @@ ivProgApp.directive('booleanExpression', function() {
   };
 });
 
+ivProgApp.directive('buttons', function($rootScope) {
+  return {
+    restrict: 'A',
+    scope: { 
+      nodes: '=buttons',
+      idParent: '=idParent'
+    },
+    templateUrl: 'partials/directives/buttons.html'+"?t="+cacheTime,
+    link: function ( $scope, element, attrs ) {
+      $scope.add = function(parent, parentId, type, name) {
+          var newNode = {
+                    id: $rootScope.itemCount++,
+                    type: type,
+                    name: name,
+                    nodes: [],
+                    parent: parentId
+                  };
 
+        // especifico de cada estrutura
+        if(type=="if"){
+          newNode.exp = [/*
+            { t: 'expB',
+              v: [{"t":"val","v":""},{"t":"opB","v":""},{"t":"val","v":""}]
+            }*/
+          ];
+          newNode.isChildrenVisible = true;
+          newNode.nodes1 = [];
+          newNode.nodes2 = [];
+        }
+        if(type=="read"){
+          newNode.message = "Por favor digite um valor:";
+          newNode.variable = "";
+        }
+        if(type=="write"){
+          newNode.variable = "";
+        }
+        if(type=="for"){
+          newNode.forType = 1; // 1 SIMPLE, 2 +-, 3 COMPLETE
+
+          newNode.initial = 1;
+          newNode.initialType = "val";
+
+          newNode.limit = 5;
+          newNode.limitType = "val";
+
+          newNode.using = "";
+
+          newNode.step = 1;
+          newNode.stepType = "val";
+
+          newNode.isChildrenVisible = true;
+
+          newNode.times = 5;
+          newNode.timesType = 5;
+          newNode.simple = true;
+          newNode.isValue = true;
+          newNode.simpleVariable = "";
+          newNode.initialValue = 0;
+          newNode.endValue = 5;
+          newNode.increment = 1;
+          newNode.variable = "";
+          
+        }
+        if(type=="attr"){
+          newNode.id = "attr_"+newNode.id;
+          newNode.variable = "";
+          //newNode.exp = [];
+          /*newNode.exp = {
+            op1: '',
+            op1T : '',
+            op: '',
+            op2: '',
+            op2T: ''
+          };*/
+          delete newNode.nodes;
+          newNode.exp = [];
+          newNode.isLocked = false;
+        }
+        parent.push(newNode);
+        $rootScope.mapping[newNode.id] = newNode;
+      };
+    }
+  };
+});
 
 var INTEGER_REGEXP = /^\-?\d*$/;
 ivProgApp.directive('integer', function() {

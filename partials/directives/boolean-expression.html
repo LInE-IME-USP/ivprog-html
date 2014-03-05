@@ -1,24 +1,43 @@
-<span class="select-variable-value" ng-class="{'need-to-set': value==''}">
+<span class="select-variable-value" ng-class="{'need-to-set': value.v[0].v==''}">
 	(
-	<span select-variable="value.op1.v" select-vars="vars" type="''"></span>
-    <span ng-show="value.op1.v==''"> « selecione uma variável</span>
+	<span select-variable="value.v[0].v" select-vars="vars" type="''"></span>
+    <span ng-show="value.v[0].v==''"> « selecione uma variável</span>
 
-    <span class="dropdown select-variable-value" ng-hide="value.op1.v==''">
+    <span class="dropdown select-variable-value" ng-hide="value.v[0].v==''">
 	    <a id="drop1" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">
-			<span ng-hide="value==''">{{operators[value.op].display}}</span>
+			<span ng-hide="value.v[0].v==''">{{operators[value.v[1].v].display}}</span>
+			<span ng-show="value.v[1].v==''"> selecionar operador </span>
 		</a>
 	    <ul class="dropdown-menu" role="menu" aria-labelledby="drop1">
-			<li ng-repeat="op in operators" ng-show="op.compatible.indexOf(vars[value.op1.v].type)>=0">
-				<a ng-click="setValue(op.id)">{{op.display}}</a>
+			<li ng-repeat="op in operators" ng-show="op.compatible.indexOf(vars[value.v[0].v].type)>=0">
+				<a ng-click="value.v[1].v = op.id;">{{op.display}}</a>
 			</li>
 		</ul>
 	</span>
-	<span  ng-hide="value.op1.v==''">
+	<span  ng-hide="value.v[0].v==''">
 		<!-- 
 			TODO: mudar para select-variable-value,
 			um componente a fazer que permite escolher uma variavel ou um valor
 		-->
-		<span select-variable="value.op2.v" select-vars="vars" type="vars[value.op1.v].type"></span>
+		<span ng-show="value.v[2].t==''" class="dropdown">
+	        <a href="javascript:;" class="btn btn-mini" data-toggle="dropdown">Selecione...</a>
+	        <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+	            <li><a role="menuitem" ng-click="value.v[2].t='var'">Variável</a></li>
+	            <li><a role="menuitem" ng-click="value.v[2].t='val'; value.v[2].v=getDefaultValue(vars[value.v[0].v].type)">Valor</a></li>
+	        </ul>
+	    </span>
+	    <span ng-show="value.v[2].t=='var'">
+			<span select-variable="value.v[2].v" select-vars="vars" type="vars[value.v[0].v].type"></span>
+		</span>
+		<span ng-show="value.v[2].t=='val'">
+			<span edit-in-place-var-value='value.v[2].v' type='vars[value.v[0].v].type'></span>
+		</span>
+		<span ng-hide="value.v[2].t==''" class="dropdown">
+	        <a href="javascript:;" class="btn btn-mini" data-toggle="dropdown"><img src="img/operations.png" /></a>
+	        <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+	            <li><a role="menuitem" ng-click="value.v[2].t=''; value.v[2].v=''">Limpar</a></li>
+	        </ul>
+	    </span>
 	</span>
 	)
 </span>

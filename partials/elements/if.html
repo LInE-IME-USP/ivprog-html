@@ -1,23 +1,21 @@
 <div class="instr repeat">
         <div class="handle"><i class="fa fa-sort"></i></div>
-            se ( 
-            <span ng-repeat="ex in node.exp">
-                <span edit-expression="ex" type="'boolean'" vars="program.functions[currentFunction].vars"></span>
-            </span>
 
-            <span class="dropdown">
-                    <button class="btn btn-mini btn-info btn-xs" data-toggle="dropdown"><i class="fa fa-align-justify"></i></button>
-                    <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-                        <li><a role="menuitem" ng-click="addElVar(node.exp)">Variável</a></li>
-                        <li><a role="menuitem" ng-click="addElVal(node.exp)">Valor</a></li>
-                        <li ng-show="program.functions[currentFunction].vars[node.variable].type=='boolean'"><a role="menuitem" ng-click="addElExpB(node.exp)">Expressão Booleana</a></li>
-                    </ul>
-            </span>
+        <span><a href="javascript:;" ng-click="childrenVisible(node)"><img src="img/expand_up.png" ng-show="node.isChildrenVisible" /><img src="img/expand_down.png" ng-hide="node.isChildrenVisible" /></a></span>
+
+            se ( 
+            <span edit-expression-java="node.exp" type="'boolean'" vars="program.functions[currentFunction].vars"></span>
             )
 
-    <button class="btn pull-right" ng-click="removeItem(node.parent, node)"><i class="icon icon-trash"></i></button>
-    <button ng-click="delete(node)" ng-show="node.nodes.length > 0" class="btn">Limpar</button>
-            <span ng-include="'nodes.html'"></span>
-            <span ng-include="'partials/elements/btns.html'"></span>
+        <button class="btn btn-danger btn-sm btn-delete" ng-click="removeItem(node.parent, node)"><i class="fa fa-minus"></i></button>
+
+        <span ng-show="node.isChildrenVisible">
+            <span ng-include="'nodes1.html'"></span>
+            <span buttons="node.nodes1" id-parent="node.id"></span>
+            
+            senão <br>
+            <span ng-include="'nodes2.html'"></span>
+            <span buttons="node.nodes2" id-parent="node.id"></span>
+        </span>
         </div>
     </div>

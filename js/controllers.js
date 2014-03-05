@@ -4,11 +4,12 @@ function StartCtrl(){
 
 }
 function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
-	$scope.itemCount = 0;
+	
+	$rootScope.itemCount = 0;
 	$scope.vars = [];
 	$scope.params = [];
 
-	$scope.mapping = {};
+	$rootScope.mapping = {};
 
 
 	// undo - redo control
@@ -162,7 +163,7 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 		}else if(type=="float"){
 			v.initialValue = 1.0;
 		}else if(type=="int"){
-			v.initialValue = 0;
+			v.initialValue = 1;
 		}else if(type=="boolean"){
 			v.initialValue = true;
 		}
@@ -193,7 +194,7 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
         $rootScope.snapshot('Variável adicionada', true);
 		var ind = $scope.itemCount;
 		var id = "var"+$scope.itemCount++;
-		$scope.program.functions[$scope.currentFunction].vars[id] = ({ name: 'newVar'+ind, type: 'float', initialValue: 0, id: id });
+		$scope.program.functions[$scope.currentFunction].vars[id] = ({ name: 'newVar'+ind, type: 'int', initialValue: 1, id: id });
 	}
 	$scope.removeVarRec = function(nodes, id){
 		angular.forEach(nodes, function(node, key){
@@ -216,13 +217,29 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 		delete $scope.program.functions[$scope.currentFunction].vars[v.id];
 	}
 	$scope.removeItem = function(parent, item){
+		parentId = parent;
 		// TODO: tratar para os outros functions
 		if(parent=="root_0"){
 			parent = $scope.program.functions[0].nodes;
 		}else{
-			parent = $scope.mapping[parent].nodes;
+			parent = $rootScope.mapping[parent].nodes;
 		}
-		parent.splice(parent.indexOf(item),1);
+		if($.isArray(parent)) {
+			parent.splice(parent.indexOf(item),1);
+		}
+		if($rootScope.mapping[parentId]){
+			var p1 = $rootScope.mapping[parentId].nodes1;
+			if($.isArray(p1)) {
+				p1.splice(p1.indexOf(item),1);
+			}
+			var p2 = $rootScope.mapping[parentId].nodes2;
+			if($.isArray(p2)) {
+				p2.splice(p2.indexOf(item),1);
+			}
+		}
+		delete $rootScope.mapping[item.id];
+		
+		
 	}
 	$scope.isValidAttr = function(attr){
 		var isValid = true;
@@ -515,26 +532,38 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 				
 				strCode+= '})';
 			}
+			if(node.type=="if"){
+				strCode+= '.next(function () {';
+				strCode+= 'if('+$scope.genExp(node.exp, 'boolean')+'){';
+				strCode+= 'next(function () {})'+$scope.genNode(node.nodes1, vars);
+				strCode+= '}else{';
+				strCode+= 'next(function () {})'+$scope.genNode(node.nodes2, vars);
+				strCode+= '}';
+				strCode+= '})';
+			}
 		});
 		return strCode;
 	}
 	$scope.genExp = function(exp, type){
 		var strCode = "";
-		
+		console.log(exp);
 		angular.forEach(exp, function(ex, key){
-			if(ex.t=="var"){
+			if(ex.t == "var"){
 				strCode+=" var_"+ex.v+" ";
-			}else if(ex.t=="val"){
+			}else if(ex.t == "val"){
 				if(type=="string"){
 					strCode+=" \" "+ex.v+"\" ";
 				}else{
 					strCode+=" "+ex.v+" ";
 				}
 			}else if(ex.t=="exp"){
-				strCode+=" ( "+$scope.genExp(ex.exp, type)+" ) ";
-			}
-			if(key<exp.length-1){
-				strCode+=ex.o;
+				strCode+=" ( "+$scope.genExp(ex.v, type)+" ) ";
+			}else if(ex.t=="expB"){
+				strCode+=" ( "+$scope.genExp(ex.v, type)+" ) ";
+			}else if(ex.t=="op"){
+				strCode+= ex.v;
+			}else if(ex.t=="opB"){
+				strCode+= ex.v;
 			}
 		});
 		return strCode;
@@ -565,18 +594,27 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 
 		// especifico de cada estrutura
 		if(type=="if"){
-			newNode.exp = [];
+			newNode.id = "if_"+newNode.id;
+			newNode.exp = [/*
+				{ t: 'expB',
+				  v: [{"t":"val","v":""},{"t":"opB","v":""},{"t":"val","v":""}]
+				}*/
+			];
+			newNode.isChildrenVisible = true;
 			newNode.nodes1 = [];
 			newNode.nodes2 = [];
 		}
 		if(type=="read"){
+			newNode.id = "read_"+newNode.id;
 			newNode.message = "Por favor digite um valor:";
 			newNode.variable = "";
 		}
 		if(type=="write"){
+			newNode.id = "write_"+newNode.id;
 			newNode.variable = "";
 		}
 		if(type=="for"){
+			newNode.id = "for_"+newNode.id;
 			newNode.forType = 1; // 1 SIMPLE, 2 +-, 3 COMPLETE
 
 			newNode.initial = 1;
@@ -616,10 +654,17 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 			};*/
 			delete newNode.nodes;
 			newNode.exp = [];
+			newNode.isLocked = false;
 		}
 		parent.push(newNode);
-		$scope.mapping[newNode.id] = newNode;
+		$rootScope.mapping[newNode.id] = newNode;
 	};
+
+	$scope.save = function(){
+		$.post('save.php', { src: JSON.stringify($scope.program) }, function(id) {
+			$("body").append("<iframe src='get.php?id=" + id + "' style='display: none;' ></iframe>");
+		});
+	}
 }
 function IvProgAbertoCtrl($scope){
   $scope.delete = function(data) {

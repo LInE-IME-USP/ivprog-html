@@ -5,19 +5,28 @@
         <span ng-show="node.variable==''"> « selecione uma variável</span>
         
         <span ng-hide="node.variable==''">  recebe 
-            (
             
+            <span ng-show="!node.isLocked">
                 <span edit-expression-java="node.exp" type="program.functions[currentFunction].vars[node.variable].type" vars="program.functions[currentFunction].vars"></span>
-            
-            )
+            </span>
+            <span ng-show="node.isLocked">
+                <span edit-expression-java-read-only="node.exp" type="program.functions[currentFunction].vars[node.variable].type" vars="program.functions[currentFunction].vars"></span>
+            </span>
 
-            <span class="dropdown">
+            <span ng-show="node.isLocked">
+                <a ng-click="node.isLocked=false"><img src="img/locker_closed.png" /></a>
+            </span>
+            <span ng-hide="node.isLocked">
+                <a  ng-click="node.isLocked=true"><img src="img/locker_opened.png" /></a>
+            </span>
+
+            <!--span class="dropdown">
                     <button class="btn btn-mini btn-xs" data-toggle="dropdown"><img src="img/operations.png" /></button>
                     <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
                         <li><a role="menuitem" ng-click="addElVar(node.exp)">Variável</a></li>
                         <li><a role="menuitem" ng-click="addElVal(node.exp)">Valor</a></li>
                         <li ng-show="program.functions[currentFunction].vars[node.variable].type=='boolean'"><a role="menuitem" ng-click="addElExpB(node.exp)">Expressão Booleana</a></li>
                     </ul>
-            </span>
+            </span-->
         </span>
 </div>

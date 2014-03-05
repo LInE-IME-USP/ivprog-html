@@ -1,0 +1,24 @@
+<span class="select-variable-value" ng-class="{'need-to-set': value==''}">
+	(
+	<span select-variable="value.op1.v" select-vars="vars" type="''"></span>
+    <span ng-show="value.op1.v==''"> « selecione uma variável</span>
+
+    <span class="dropdown select-variable-value" ng-hide="value.op1.v==''">
+	    <a id="drop1" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">
+			<span ng-hide="value==''">{{operators[value.op].display}}</span>
+		</a>
+	    <ul class="dropdown-menu" role="menu" aria-labelledby="drop1">
+			<li ng-repeat="op in operators" ng-show="op.compatible.indexOf(vars[value.op1.v].type)>=0">
+				<a ng-click="setValue(op.id)">{{op.display}}</a>
+			</li>
+		</ul>
+	</span>
+	<span  ng-hide="value.op1.v==''">
+		<!-- 
+			TODO: mudar para select-variable-value,
+			um componente a fazer que permite escolher uma variavel ou um valor
+		-->
+		<span select-variable="value.op2.v" select-vars="vars" type="vars[value.op1.v].type"></span>
+	</span>
+	)
+</span>

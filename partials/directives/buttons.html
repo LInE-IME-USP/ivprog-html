@@ -1,0 +1,20 @@
+<!-- BOTOES DE INSERIR INSTRUCAO DENTRO DE ESTRUTURAS COMO FOR, WHILE, ETC -->
+<div class="addButtons">
+    <div class="dropdown">
+      <button class="btn dropdown-toggle btn-info btn-sm" type="button" id="dropdownMenu1" data-toggle="dropdown">
+        <i class="fa fa-plus fa-fw"></i> Instrução
+      </button>
+      <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+        <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(nodes, idParent, 'attr', 'attr')" href="javascript:;"><img src="img/att.png" width="20" height="20" /> Atribuição</a></li>
+        
+        <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(nodes, idParent, 'if', 'se')" href="javascript:;"><img src="img/if.png" width="20" height="20" /> Se verdadeiro então</a></li>
+
+        <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(nodes, idParent, 'for', 'repetir')" href="javascript:;"><img src="img/loop-n.png" width="20" height="20" /> Repita N vezes</a></li>
+
+        <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(nodes, idParent, 'read', 'ler')" href="javascript:;"><img src="img/download.png" /> Leitura de dados</a></li>
+
+        <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(nodes, idParent, 'write', 'escrever')"  href="javascript:;"><img src="img/upload.png" /> Escrita de dados</a></li>
+        
+      </ul>
+    </div>
+</div>

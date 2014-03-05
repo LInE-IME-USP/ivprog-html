@@ -3,6 +3,16 @@
         <li ng-repeat="node in node.nodes" ng-include="getTemplate(node)"></li>
     </ul>
 </script>
+<script type="text/ng-template"  id="nodes1.html">
+  <ul ui:sortable="sortableOptions" ng:model="node.nodes1" class="instrs" ng-show="node.nodes1.length > 0">
+        <li ng-repeat="node in node.nodes1" ng-include="getTemplate(node)"></li>
+    </ul>
+</script>
+<script type="text/ng-template"  id="nodes2.html">
+  <ul ui:sortable="sortableOptions" ng:model="node.nodes2" class="instrs" ng-show="node.nodes2.length > 0">
+        <li ng-repeat="node in node.nodes2" ng-include="getTemplate(node)"></li>
+    </ul>
+</script>
 
 <script type="text/ng-template"  id="tree_item_renderer.html">
     {{node.name}} {{node.type}}
@@ -35,6 +45,7 @@
             <button class="btn" ng-click="redo()" ng-show="historyStack < actionsHistory.length-1"><img src="img/redo.png" /></button>
             <button class="btn disabled" ng-hide="historyStack < actionsHistory.length-1"><img src="img/redo.png" /></button>
         </div>
+        <div class=""><button ng-click="save()">Save</button></div>
       </div>
     </div>
     <!--h2>Programa: {{program.programName}}</h2-->
@@ -81,7 +92,8 @@
                     </li>
                 </ul>
                 <div class="addButtons">
-                    <div class="dropdown">
+                    <div buttons="program.functions[currentFunction].nodes" id-parent="'root_'+currentFunction"></div>
+                    <!--div class="dropdown">
                       <button class="btn dropdown-toggle btn-info btn-sm" type="button" id="dropdownMenu1" data-toggle="dropdown">
                         <i class="glyphicon glyphicon-plus"></i> Instrução
                       </button>
@@ -95,7 +107,7 @@
                         <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(program.functions[currentFunction].nodes, 'root_'+currentFunction, 'read', 'ler')" href="javascript:;"><img src="img/download.png" /> Leitura de dados</a></li>
                         <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="add(program.functions[currentFunction].nodes, 'root_'+currentFunction, 'write', 'escrever')"  href="javascript:;"><img src="img/upload.png" /> Escrita de dados</a></li>
                       </ul>
-                    </div>
+                    </div-->
                 </div>
 
             </div>
@@ -134,5 +146,3 @@
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
-
-{{program}}

@@ -1,7 +1,17 @@
     <script type="text/ng-template"  id="exp.html">
         (<span ng-repeat="item in item.v">
+            <span ng-show="item.t==''" class="dropdown">
+                <a href="javascript:;" class="btn btn-mini" data-toggle="dropdown">Selecione...</a>
+                <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                    <li><a role="menuitem" ng-click="setType(item, 'var')">Variável</a></li>
+                    <li><a role="menuitem" ng-click="setType(item, 'val');">Valor</a></li>
+                </ul>
+            </span>
             <span ng-show="item.t=='exp'">
                 <span ng-include="'exp.html'"></span>
+            </span>
+            <span ng-show="item.t=='expB'">
+                <span boolean-expression="item" ex="item.v" vars="vars"></span>
             </span>
             <span ng-show="item.t=='var'">
                 <span select-variable="item.v" select-vars="vars" type="type"></span>
@@ -10,12 +20,11 @@
                 <span edit-in-place-var-value='item.v' type='type'></span>
             </span>
 
-            <span class="dropdown" ng-show="item.t=='val' || item.t=='var'">
+            <span class="dropdown" ng-show="item.t=='val' || item.t=='var' || item.t=='expB'">
                 <a href="javascript:;" class="btn btn-mini" data-toggle="dropdown"><img src="img/operations.png" /></a>
                 <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-                    <li><a role="menuitem" ng-click="selectOp(item, '+')">+</a></li>
-                    <li><a role="menuitem" ng-click="ex.op='-'">-</a></li>
-                    <li><a role="menuitem" ng-click="ex.op1T=''; op1=''">Limpar</a></li>
+                    <li ng-repeat="op in operators" ng-show="op.compatible.indexOf(type)>=0"><a role="menuitem" ng-click="selectOp(item, op.id)">{{op.display}}</a></li>
+                    <li><a role="menuitem" ng-click="cleanOp(item)">Limpar</a></li>
                 </ul>
             </span>
 
@@ -47,23 +56,28 @@
     </span>
 
     <span ng-repeat="item in ex">
-        
         <span ng-show="item.t=='exp'">
             <!--span edit-expression-java="item.v" vars="vars" type="type"></span-->
             <span ng-include="'exp.html'"></span>
         </span>
         <span ng-show="item.t=='var'">
             <span select-variable="item.v" select-vars="vars" type="type"></span>
+        </span>
+        <span ng-show="item.t=='expB'">
+                <span boolean-expression="item" ex="item.v" vars="vars"></span>
+            </span>
+        <span ng-show="item.t=='val'">
+            <span edit-in-place-var-value='item.v' type='type'></span>
+        </span>
+        <span class="dropdown" ng-show="item.t=='val' || item.t=='var' || item.t=='exp'">
             <span class="dropdown">
                 <a href="javascript:;" class="btn btn-mini" data-toggle="dropdown"><img src="img/operations.png" /></a>
                 <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-                    <li><a role="menuitem" ng-click="selectOp(item, '+')">+</a></li>
-                    <li><a role="menuitem" ng-click="ex.op='-'">-</a></li>
-                    <li><a role="menuitem" ng-click="ex.op1T=''; op1=''">Limpar</a></li>
+                    <li ng-repeat="op in operators" ng-show="op.compatible.indexOf(type)>=0"><a role="menuitem" ng-click="selectOp(item, op.id)">{{op.display}}</a></li>
+                    <li><a role="menuitem" ng-click="ex.pop()">Limpar</a></li>
                 </ul>
             </span>
         </span>
-        <span ng-show="item.t=='val'">VAL</span>
         <span ng-show="item.t=='op'">
             <span select-operator="item.v" type="type"></span>
         </span>
