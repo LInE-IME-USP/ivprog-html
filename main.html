@@ -30,11 +30,14 @@
 
     <script>
         function getAnswer(){
+            var scope = angular.element($("#mainContent"));
+            alert(scope.getTeste());
             return "getAnswer will return some value in future";
         }
         function getEvaluation(){
             return "getEvaluation will return some value in future";
         }
     </script>
+    <button onclick="getAnswer()">Teste</button>
   </body>
 </html>

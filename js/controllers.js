@@ -11,6 +11,9 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 
 	$rootScope.mapping = {};
 
+	$scope.getTeste = function(){
+		return 1;
+	}
 
 	// undo - redo control
 	$scope.historyStack = -1;
