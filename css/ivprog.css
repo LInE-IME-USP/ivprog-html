@@ -74,7 +74,6 @@
 }
 .select-variable-value > a{
   padding: 4px;
-  color: black;
 }
 .select-variable-value > a:hover{
   background: yellow;
@@ -94,7 +93,14 @@
 .edit-in-place input, .edit-in-place select {
   display: none;
 }
-
+span.normal{
+  font-weight: bold;
+  color: blue;
+}
+a.normal{
+  font-weight: bold;
+  color: blue; 
+}
 .edit-in-place.active span.normal {
   display: none;
 }

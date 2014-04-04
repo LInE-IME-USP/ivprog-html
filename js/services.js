@@ -12,9 +12,55 @@ ivprogModule.factory('IvProgSourceParts', function(){
     }
   };
 });
-var writer = function(t){
-    $('.output').append(t+'<br>');
+
+var outputTXT = "";
+var writer = function(t, testCase){
+    if(!testCase){
+      $('.output').append(t+'<br>');
+    }
+    if(outputTXT==""){
+      outputTXT = t;
+    }else{
+      outputTXT+=" "+t;
+    }
 }
+var getOutput = function(){
+  return outputTXT;
+}
+var cleanOutput = function(){
+  outputTXT = "";
+  currentInput = 0;
+}
+
+var totalTestCases = 0;
+var testCases = [];
+var totalCasesEvaluated = 0;
+var totalCasesPassed = 0;
+
+var readerInput = function(index){
+    var inputTXT = testCases[index].input;
+    var ii = inputTXT.split("\n").join(" ").split("  ").join(" ");
+    var ii2 = ii.split(" ");
+    if(testCases[index].currentIndex<ii2.length){
+      return ii2[testCases[index].currentIndex++];
+    }
+    return "0";
+}
+
+var endTest = function(index){
+  totalCasesEvaluated++;
+  if(outputTXT==testCases[index].output){
+    totalCasesPassed++;
+  }
+  if(totalCasesEvaluated==totalTestCases){
+    // terminou a execucao de tds
+    var apro = parseInt((totalCasesPassed/totalTestCases)*100);
+    writer("------<br>Total de casos de testes: "+totalTestCases+"<br>Testes corretos: "+totalCasesPassed+"<br>Aproveitamento: "+apro+"%", false);
+  }
+  console.log(testCases[index]);
+  outputTXT = "";
+}
+
 var writerError = function(id, message){
     $('.output').append("<a class='error' href='javascript:;' onclick='highlightError(\""+id+"\")'>"+message+"</a><br>");
 }

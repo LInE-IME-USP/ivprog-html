@@ -3,11 +3,32 @@ var deferred = Deferred();
 function StartCtrl(){
 
 }
+function CommCtrl($scope, $rootScope){
+	$scope.valor = 123;
+	$scope.getSource = function(){
+		return JSON.stringify($rootScope.getSource());
+	}
+	$scope.getEvaluation = function(){
+		return "dentro do ng";
+	}
+}
 function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
-	
+	$rootScope.getSource = function(){
+		return { 
+			mapping: $rootScope.mapping, 
+			src: $scope.program 
+		};
+	}
 	$rootScope.itemCount = 0;
 	$scope.vars = [];
 	$scope.params = [];
+	$scope.testCases = [];
+	$scope.addTestCase = function(){
+		$scope.testCases.push({ input: "", output: "", currentIndex: 0 });
+	}
+	$scope.removeTestCase = function(i){
+		$scope.testCases.splice(i, 1);
+	}
 
 	$rootScope.mapping = {};
 
@@ -261,13 +282,37 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 	$scope.delete = function(data) {
 	    data.nodes = [];
 	};
-	$scope.run = function(){
+	$scope.run = function(useTestCases){
+		cleanOutput();
+
 		if(!$scope.validateEverything($scope.program)){
-			writer("<i class='fa fa-exclamation-triangle'></i> Existem campos vazios. Preencha os campos com borda vermelha para executar o algoritmo corretamente.");
+			writer("<i class='fa fa-exclamation-triangle'></i> Existem campos vazios. Preencha os campos com borda vermelha para executar o algoritmo corretamente.", false);
 		}else{
-			var code = $scope.genCode($scope.program);
-			console.log(code);
-			window.eval(code);
+			if(useTestCases){
+
+				totalCasesEvaluated = 0;
+				totalCasesPassed = 0;
+
+				totalTestCases = $scope.testCases.length;
+				angular.forEach($scope.testCases, function(item, key){
+					$scope.testCases[key].currentIndex = 0;
+				})
+				testCases = $scope.testCases;
+				var code = "";
+				angular.forEach($scope.testCases, function(item, key){
+					code += $scope.genCode($scope.program, true, key);
+				});
+				console.log(code);
+				window.eval(code);
+				
+					
+			}else{
+				var code = $scope.genCode($scope.program, false, 0);
+				window.eval(code);
+			}
+
+			
+
 
 			$("#valor").unbind('keydown');
 			$("#valor").keydown(function( event ) {
@@ -355,8 +400,8 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 		});
 		return ret;
 	}
-	$scope.genCode = function(funcs){
-		var strCode = "var t = function(){";
+	$scope.genCode = function(funcs, useTestCases, testCaseIndex){
+		var strCode = "var t"+testCaseIndex+" = function(){";
 		var i = 0;
 		angular.forEach(funcs.functions, function(func, key){
 			if(i++==0){
@@ -370,9 +415,19 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 			});
 	
 			strCode+= 'next(function(){';			
-			//strCode+='return deferred;'
-			strCode+='})'
-			strCode+=$scope.genNode(func.nodes, func.vars);
+			strCode+='/*return deferred;*/';
+			strCode+='})';
+
+			// correcao automatica - false
+			strCode+=$scope.genNode(useTestCases, func.nodes, func.vars, testCaseIndex);
+
+			if(useTestCases){
+				// correcao automatica
+				strCode+= '.next(function(){';			
+				//strCode+='   console.log("OUT "+getOutput());'
+				strCode+='   endTest('+testCaseIndex+');'
+				strCode+='});';
+			}
 
 			strCode+= "}";
 			if(func.type=="main"){
@@ -380,11 +435,11 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 			}
 		}
 		});
-		strCode+="}; t();";
+		strCode+="}; t"+testCaseIndex+"();";
 		
 		return strCode;
 	}
-	$scope.genNode = function(nodes, vars){
+	$scope.genNode = function(isEvaluating, nodes, vars, testCaseIndex){
 		var strCode = "";
 		angular.forEach(nodes, function(node, key){
 			if(node.type=="write"){
@@ -393,11 +448,11 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 					strCode += ".next(function(){";
 					
 					if(v.type=="boolean"){
-						strCode+="if(var_"+node.variable+"){ writer('Verdadeiro'); }else{ writer('Falso'); }";
+						strCode+="if(var_"+node.variable+"){ writer('Verdadeiro', "+isEvaluating+"); }else{ writer('Falso', "+isEvaluating+"); }";
 					}else{
 						strCode += "writer(";
 						strCode += "var_"+node.variable;
-						strCode += ");";
+						strCode += ","+isEvaluating+");";
 					}
 					strCode += "})";
 				}
@@ -411,7 +466,7 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 					strCode+= 'function loop'+node.id+'(){';
 					strCode+= '	return next(function(){})'; // apenas para poder encadear
 					if(node.nodes.length>0){
-						strCode+= $scope.genNode(node.nodes, vars);
+						strCode+= $scope.genNode(isEvaluating, node.nodes, vars);
 					}
 					strCode+='	.next(function(){';
 					strCode+='		++i'+node.id+';';
@@ -439,7 +494,7 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 					strCode+= 'function loop'+node.id+'(){';
 					strCode+= '	return next(function(){})'; // apenas para poder encadear
 					if(node.nodes.length>0){
-						strCode+= $scope.genNode(node.nodes, vars);
+						strCode+= $scope.genNode(isEvaluating, node.nodes, vars);
 					}
 					strCode+='	.next(function(){';
 					strCode+='		++var_'+node.using+';';
@@ -471,7 +526,7 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 					strCode+= 'function loop'+node.id+'(){';
 					strCode+= '	return next(function(){})'; // apenas para poder encadear
 					if(node.nodes.length>0){
-						strCode+= $scope.genNode(node.nodes, vars);
+						strCode+= $scope.genNode(isEvaluating, node.nodes, vars);
 					}
 					strCode+='	.next(function(){';
 					if(node.stepType=="val"){
@@ -509,16 +564,22 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 				}
 			}
 			if(node.type=="read"){
-				strCode+= '.next(function () {';
-				strCode+= '		$("#msgRead").html("'+node.message+'");';
-				strCode+= '		$("#readData").modal();';
-				strCode+= '		$("#valor").focus();';
-				strCode+= '		return deferred;';
-				strCode+= '}).';
-				strCode+= 'next(function(a){';
-				strCode+= '		console.log("Valor lido: "+a);';
 				var v = $scope.program.functions[$scope.currentFunction].vars[node.variable];
-				strCode+= '/* '+v.type+' */';
+				
+				if(!isEvaluating){
+					strCode+= '.next(function () {';
+					strCode+= '		$("#msgRead").html("'+node.message+'");';
+					strCode+= '		$("#readData").modal();';
+					strCode+= '		$("#valor").focus();';
+					strCode+= '		return deferred;';
+					strCode+= '}).';
+					strCode+= 'next(function(a){';
+					strCode+= '		console.log("Valor lido: "+a);';
+					strCode+= '/* '+v.type+' */';
+				}else{
+					strCode+= '.next(function () {';
+					strCode+= '    var a = "'+readerInput(testCaseIndex)+'";';
+				}
 				if(v.type=="int"){
 					strCode+= "		var_"+node.variable +" = parseInt(a);";	
 				}else if(v.type=="float"){
@@ -538,9 +599,9 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 			if(node.type=="if"){
 				strCode+= '.next(function () {';
 				strCode+= 'if('+$scope.genExp(node.exp, 'boolean')+'){';
-				strCode+= 'next(function () {})'+$scope.genNode(node.nodes1, vars);
+				strCode+= 'return next(function () {})'+$scope.genNode(isEvaluating, node.nodes1, vars);
 				strCode+= '}else{';
-				strCode+= 'next(function () {})'+$scope.genNode(node.nodes2, vars);
+				strCode+= 'return next(function () {})'+$scope.genNode(isEvaluating, node.nodes2, vars);
 				strCode+= '}';
 				strCode+= '})';
 			}
@@ -580,7 +641,7 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 		if(!node.isValue){
 			node.simpleVariable = "";
 		}
-		writer(node.isValue);
+		writer(node.isValue, false);
 	}
 	$scope.childrenVisible = function(node){
 		node.isChildrenVisible = !node.isChildrenVisible;

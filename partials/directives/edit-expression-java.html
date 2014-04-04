@@ -1,7 +1,7 @@
     <script type="text/ng-template"  id="exp.html">
         (<span ng-repeat="item in item.v">
             <span ng-show="item.t==''" class="dropdown">
-                <a href="javascript:;" class="btn btn-mini" data-toggle="dropdown">Selecione...</a>
+                <a href="javascript:;" class="btn btn-mini normal" data-toggle="dropdown">Selecione...</a>
                 <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
                     <li><a role="menuitem" ng-click="setType(item, 'var')">Variável</a></li>
                     <li><a role="menuitem" ng-click="setType(item, 'val');">Valor</a></li>
@@ -34,7 +34,7 @@
         </span>
 
         <span ng-show="item.v.length==2" class="dropdown">
-            <a href="javascript:;" class="btn btn-mini" data-toggle="dropdown">Selecione...</a>
+            <a href="javascript:;" class="btn btn-mini normal" data-toggle="dropdown">Selecione...</a>
             <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
                 <li><a role="menuitem" ng-click="addEl(item.v, 'var')">Variável</a></li>
                 <li><a role="menuitem" ng-click="addEl(item.v, 'val')">Valor</a></li>
@@ -48,7 +48,7 @@
 
     <!-- nao add nada ainda -->
     <span ng-show="ex.length==0" class="dropdown">
-        <a href="javascript:;" class="btn btn-mini" data-toggle="dropdown">Selecione...</a>
+        <a href="javascript:;" class="btn btn-mini normal" data-toggle="dropdown">Selecione...</a>
         <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
             <li><a role="menuitem" ng-click="addEl(ex, 'var')">Variável</a></li>
             <li><a role="menuitem" ng-click="addEl(ex, 'val')">Valor</a></li>
@@ -83,7 +83,7 @@
         </span>
     </span>
     <span ng-show="ex.length==2" class="dropdown">
-        <a href="javascript:;" class="btn btn-mini" data-toggle="dropdown">Selecione...</a>
+        <a href="javascript:;" class="btn btn-mini normal" data-toggle="dropdown">Selecione...</a>
         <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
             <li><a role="menuitem" ng-click="addEl('var')">Variável</a></li>
             <li><a role="menuitem" ng-click="addEl('val')">Valor</a></li>

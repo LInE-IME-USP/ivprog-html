@@ -13,8 +13,9 @@
     <!--div class="header">
         <h1><img src="img/logo.png" title="ivProg" /></h1>
     </div-->
-
     <div ng-view></div>
+
+    <span ng-controller="CommCtrl" id="commCtrl"></span>
 
     <script src="js/jquery.1.8.3.js"></script>
     <script src="js/jsdeferred.jquery.js"></script>
@@ -29,15 +30,27 @@
     <script src="js/angular.ui.min.js"></script>
 
     <script>
+        function getParameterByName(name) {
+            var match = RegExp('[?&]' + name + '=([^&]*)')
+                            .exec(window.location.search);
+            return match ?
+                decodeURIComponent(match[1].replace(/\+/g, ' '))
+                : null;
+        }
         function getAnswer(){
-            var scope = angular.element($("#mainContent"));
-            alert(scope.getTeste());
-            return "getAnswer will return some value in future";
+            return angular.element("#commCtrl").scope().getSource()
         }
         function getEvaluation(){
-            return "getEvaluation will return some value in future";
+            return angular.element("#commCtrl").scope().getEvaluation();
+            //return "getEvaluation will return some value in future";
         }
+        var ilaParams = {
+            MA_PARAM_PropositionURL:        getParameterByName("MA_PARAM_PropositionURL"),
+            MA_PARAM_notSEND:               getParameterByName("MA_PARAM_notSEND"),
+            MA_PARAM_addresPOST:            getParameterByName("MA_PARAM_addresPOST"),
+            MA_PARAM_PropositionURL:        getParameterByName("MA_PARAM_PropositionURL"),
+            MA_PARAM_Proposition:           getParameterByName("MA_PARAM_Proposition"),
+        };
     </script>
-    <button onclick="getAnswer()">Teste</button>
   </body>
 </html>

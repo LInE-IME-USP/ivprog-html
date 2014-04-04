@@ -25,7 +25,7 @@ ivProgApp.directive('editInPlace', function() {
   return {
     restrict: 'A',
     scope: { value: '=editInPlace' },
-    template: '<span ng-click="edit()" ng-bind="value" class="normal"></span><span class="control-group"><input ng-model="value" type="text" class="input" /></span>',
+    template: '<span ng-click="edit()" ng-bind="value" class="normal editable"></span><span class="control-group"><input ng-model="value" type="text" class="input" /></span>',
     link: function ( $scope, element, attrs ) {
       // Let's get a reference to the input element, as we'll want to reference it.
       //var inputElement = angular.element( element.children()[1] );

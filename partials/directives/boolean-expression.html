@@ -1,10 +1,10 @@
 <span class="select-variable-value" ng-class="{'need-to-set': value.v[0].v==''}">
 	(
 	<span select-variable="value.v[0].v" select-vars="vars" type="''"></span>
-    <span ng-show="value.v[0].v==''"> « selecione uma variável</span>
+    <span ng-show="value.v[0].v==''" class="normal"> « selecione uma variável</span>
 
     <span class="dropdown select-variable-value" ng-hide="value.v[0].v==''">
-	    <a id="drop1" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">
+	    <a id="drop1" href="#" role="button" class="dropdown-toggle normal" data-toggle="dropdown">
 			<span ng-hide="value.v[0].v==''">{{operators[value.v[1].v].display}}</span>
 			<span ng-show="value.v[1].v==''"> selecionar operador </span>
 		</a>
