@@ -4,6 +4,6 @@
 		<span ng-hide="value==''">{{vars[value].name}}</span>
 	</a>
 	<ul class="dropdown-menu" role="menu" aria-labelledby="drop1">
-		<li ng-repeat="var in vars" ng-show="var.type==type || type==''"><a ng-click="setValue(var.id)">{{var.name}}</a></li>
+		<li ng-repeat="var in vars" ng-show="var.type==type || type=='' || (type=='int' && var.type=='float') || (type=='float' && var.type=='int')"><a ng-click="setValue(var.id)">{{var.name}}</a></li>
 	</ul>
 </span>

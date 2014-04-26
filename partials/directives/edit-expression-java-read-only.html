@@ -3,6 +3,9 @@
             <span ng-show="item.t=='exp'">
                 <span ng-include="'exp_r.html'"></span>
             </span>
+            <span ng-show="item.t=='expB'">
+                <span ng-include="'exp_r_bool.html'"></span>
+            </span>
             <span ng-show="item.t=='var'">
                 {{vars[item.v].name}}
             </span>
@@ -11,7 +14,35 @@
             </span>
 
             <span ng-show="item.t=='op'">
+                {{operators2[item.v].display}}
+            </span>
+            <span ng-show="item.t=='opB'">
+                {{operators[item.v].display}}
+            </span>
+        </span>
+        )
+    </script>
+
+    <script type="text/ng-template"  id="exp_r_bool.html">
+        (<span ng-repeat="item in item.v">
+            <span ng-show="item.t=='exp'">
+                <span ng-include="'exp_r.html'"></span>
+            </span>
+            <span ng-show="item.t=='expB'">
+                <span ng-include="'exp_r_bool.html'"></span>
+            </span>
+            <span ng-show="item.t=='var'">
+                {{vars[item.v].name}}
+            </span>
+            <span ng-show="item.t=='val'">
                 {{item.v}}
+            </span>
+
+            <span ng-show="item.t=='op'">
+                {{operators2[item.v].display}}
+            </span>
+            <span ng-show="item.t=='opB'">
+                {{operators[item.v].display}}
             </span>
         </span>
         )
@@ -22,6 +53,10 @@
         <span ng-show="item.t=='exp'">
             <!--span edit-expression-java="item.v" vars="vars" type="type"></span-->
             <span ng-include="'exp_r.html'"></span>
+        </span>
+        <span ng-show="item.t=='expB'">
+            <!--span edit-expression-java="item.v" vars="vars" type="type"></span-->
+            <span ng-include="'exp_r_bool.html'"></span>
         </span>
         <span ng-show="item.t=='var'">
             {{vars[item.v].name}}

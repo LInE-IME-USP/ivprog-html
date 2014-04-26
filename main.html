@@ -44,6 +44,9 @@
             return angular.element("#commCtrl").scope().getEvaluation();
             //return "getEvaluation will return some value in future";
         }
+        function getEvaluationCallback(nota){
+            parent.getEvaluationCallback(nota);
+        }
         var ilaParams = {
             MA_PARAM_PropositionURL:        getParameterByName("MA_PARAM_PropositionURL"),
             MA_PARAM_notSEND:               getParameterByName("MA_PARAM_notSEND"),
@@ -51,6 +54,12 @@
             MA_PARAM_PropositionURL:        getParameterByName("MA_PARAM_PropositionURL"),
             MA_PARAM_Proposition:           getParameterByName("MA_PARAM_Proposition"),
         };
+        function trackAction(action){
+            if(ilaParams.MA_PARAM_addresPOST!=null){
+                $.post(ilaParams.MA_PARAM_addresPOST+"&track=1", { trackingData: "html=1;"+action }, function(d){
+                });
+            }
+        }
     </script>
   </body>
 </html>

@@ -1,6 +1,6 @@
 var ivProgApp = angular.module('ivprog', ['ivprogServices', 'ui']);
 
-var cacheTime = new Date().getTime(); // change to string empty to production
+var cacheTime = 4; //new Date().getTime(); //2;//new Date().getTime(); // change to string empty to production
 
 ivProgApp.config(['$routeProvider', function($routeProvider) {
   $routeProvider.
@@ -15,10 +15,23 @@ ivProgApp.config(['$routeProvider', function($routeProvider) {
 }]);
 
 ivProgApp.run(function($rootScope){
+
+    trackAction("opened");
+
     $rootScope.showBack = false;
     $rootScope.currentLanguage = 'pt';
     // loading JSDeferred
     Deferred.define();
+
+    if(ilaParams.MA_PARAM_notSEND=="true"){
+      $("#caseTests").hide();
+      $("#btnTest").hide();
+      $rootScope.notSend = true;
+    }else{
+      $("#caseTests").show();
+      $("#btnTest").show();
+      $rootScope.notSend = false;
+    }
 });
 
 ivProgApp.directive('editInPlace', function() {
@@ -417,6 +430,76 @@ ivProgApp.directive('editExpressionJavaReadOnly', function() {
     },
     templateUrl: 'partials/directives/edit-expression-java-read-only.html'+"?t="+cacheTime,
     link: function ( $scope, element, attrs ) {
+      $scope.operators = {
+        "<=": {
+                id: "<=",
+                display: "≤",
+                compatible: ["float", "int"]
+        },
+        "<": {
+                id: "<",
+                display: "<",
+                compatible: ["float", "int", "string"]
+        },
+        "==": {
+                id: "==",
+                display: "==",
+                compatible: ["float", "int", "string", "boolean"]
+        },
+        "!=": {
+                id: "!=",
+                display: "≠",
+                compatible: ["float", "int", "string", "boolean"]
+        },       
+        ">=": {
+                id: ">=",
+                display: "≥",
+                compatible: ["float", "int"]
+        },
+        ">": {
+                id: ">",
+                display: ">",
+                compatible: ["float", "int", "string"]
+        } 
+      };
+
+      $scope.operators2 = {
+        "+": {
+                id: "+",
+                display: "Adição",
+                compatible: ["float", "int", "string"]
+        },
+        "-": {
+                id: "-",
+                display: "Subtração",
+                compatible: ["float", "int"]
+        },
+        "/": {
+                id: "/",
+                display: "Divisão",
+                compatible: ["float", "int"]
+        },
+        "*": {
+                id: "*",
+                display: "Multiplicação",
+                compatible: ["float", "int"]
+        },
+        "%": {
+                id: "%",
+                display: "Resto da divisão",
+                compatible: ["float", "int"]
+        },
+        "&&": {
+                id: "&&",
+                display: "E",
+                compatible: ["boolean"]
+        },
+        "||": {
+                id: "||",
+                display: "OU",
+                compatible: ["boolean"]
+        }
+      };
     }
   };
 });
@@ -819,36 +902,37 @@ ivProgApp.directive('booleanExpression', function() {
 
 
       $scope.operators = {
-        ">": {
-                id: ">",
-                display: ">",
-                compatible: ["float", "int", "string"]
+        "<=": {
+                id: "<=",
+                display: "≤",
+                compatible: ["float", "int"]
         },
         "<": {
                 id: "<",
                 display: "<",
                 compatible: ["float", "int", "string"]
         },
-        "<=": {
-                id: "<=",
-                display: "<=",
-                compatible: ["float", "int"]
-        },
-        ">=": {
-                id: ">=",
-                display: ">=",
-                compatible: ["float", "int"]
-        },
         "==": {
                 id: "==",
-                display: "=",
+                display: "==",
                 compatible: ["float", "int", "string", "boolean"]
         },
         "!=": {
                 id: "!=",
-                display: "<>",
+                display: "≠",
                 compatible: ["float", "int", "string", "boolean"]
+        },       
+        ">=": {
+                id: ">=",
+                display: "≥",
+                compatible: ["float", "int"]
+        },
+        ">": {
+                id: ">",
+                display: ">",
+                compatible: ["float", "int", "string"]
         }
+        
       };
     }
   };
@@ -864,6 +948,7 @@ ivProgApp.directive('buttons', function($rootScope) {
     templateUrl: 'partials/directives/buttons.html'+"?t="+cacheTime,
     link: function ( $scope, element, attrs ) {
       $scope.add = function(parent, parentId, type, name) {
+          trackAction("add;type="+type);
           var newNode = {
                     id: $rootScope.itemCount++,
                     type: type,
@@ -916,6 +1001,12 @@ ivProgApp.directive('buttons', function($rootScope) {
           newNode.increment = 1;
           newNode.variable = "";
           
+        }
+        if(type=="while"){
+          newNode.id = "while_"+newNode.id;
+          newNode.exp = [];
+          newNode.isChildrenVisible = true;
+          newNode.nodes = [];
         }
         if(type=="attr"){
           newNode.id = "attr_"+newNode.id;

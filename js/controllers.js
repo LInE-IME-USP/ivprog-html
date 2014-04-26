@@ -9,24 +9,40 @@ function CommCtrl($scope, $rootScope){
 		return JSON.stringify($rootScope.getSource());
 	}
 	$scope.getEvaluation = function(){
-		return "dentro do ng";
+		return $rootScope.getEvaluation();
 	}
 }
 function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
+	$rootScope.trackAction = function(action){
+		if(ilaParams.MA_PARAM_addresPOST!=null){
+			$.post(ilaParams.MA_PARAM_addresPOST+"&track=1", { trackingData: "html=1;"+action }, function(d){
+			});
+		}
+	}
+
 	$rootScope.getSource = function(){
+		$rootScope.trackAction("getSource");
 		return { 
 			mapping: $rootScope.mapping, 
-			src: $scope.program 
+			src: $scope.program,
+			testCases: $scope.testCases
 		};
 	}
+	$rootScope.getEvaluation = function(){
+		$rootScope.trackAction("getEvaluation");
+		$scope.run(true);
+	}
+
 	$rootScope.itemCount = 0;
 	$scope.vars = [];
 	$scope.params = [];
 	$scope.testCases = [];
 	$scope.addTestCase = function(){
+		$rootScope.trackAction("addTestCase");
 		$scope.testCases.push({ input: "", output: "", currentIndex: 0 });
 	}
 	$scope.removeTestCase = function(i){
+		$rootScope.trackAction("removeTestCase");
 		$scope.testCases.splice(i, 1);
 	}
 
@@ -179,6 +195,8 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 		$scope.params.splice($scope.params.indexOf(v), 1);
 	}
 	$scope.varSetType = function(v, type){
+		$rootScope.trackAction("changeVarType");
+
 		var previousType = v.type;
 		v.type = type;
 
@@ -214,6 +232,7 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 		});
 	}
 	$scope.addVar = function(){
+		$rootScope.trackAction("addVar");
 		// TODO: checar se alterou o valor
         $rootScope.snapshot('Variável adicionada', true);
 		var ind = $scope.itemCount;
@@ -221,6 +240,7 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 		$scope.program.functions[$scope.currentFunction].vars[id] = ({ name: 'newVar'+ind, type: 'int', initialValue: 1, id: id });
 	}
 	$scope.removeVarRec = function(nodes, id){
+		$rootScope.trackAction("removeVar");
 		angular.forEach(nodes, function(node, key){
 
 			if(node.type=="write"){
@@ -236,11 +256,15 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 		});
 	}
 	$scope.removeVar = function(v){
+		$rootScope.trackAction("removeVar");
+
 		$rootScope.snapshot('Variável removida', true);
 		$scope.removeVarRec($scope.program.functions[$scope.currentFunction].nodes, v.id);
 		delete $scope.program.functions[$scope.currentFunction].vars[v.id];
 	}
 	$scope.removeItem = function(parent, item){
+		$rootScope.trackAction("removeItem");
+
 		parentId = parent;
 		// TODO: tratar para os outros functions
 		if(parent=="root_0"){
@@ -280,11 +304,13 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
         connectWith: ".apps-container"
 	};
 	$scope.delete = function(data) {
+		$rootScope.trackAction("delete");
 	    data.nodes = [];
 	};
 	$scope.run = function(useTestCases){
 		cleanOutput();
-
+		$rootScope.trackAction("run="+useTestCases);
+		
 		if(!$scope.validateEverything($scope.program)){
 			writer("<i class='fa fa-exclamation-triangle'></i> Existem campos vazios. Preencha os campos com borda vermelha para executar o algoritmo corretamente.", false);
 		}else{
@@ -307,6 +333,7 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 				
 					
 			}else{
+				$rootScope.trackAction("run");
 				var code = $scope.genCode($scope.program, false, 0);
 				window.eval(code);
 			}
@@ -334,6 +361,7 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 		}
 	}
 	$scope.clearOutput = function(){
+		$rootScope.trackAction("cleanOutput");
 		$(".output").html("");
 	}
 	$scope.validateEverything = function(funcs){
@@ -415,7 +443,10 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 			});
 	
 			strCode+= 'next(function(){';			
-			strCode+='/*return deferred;*/';
+			if(useTestCases){
+				strCode+='resetTestCase('+testCaseIndex+');';
+			}
+			//strCode+='/*return deferred;*/';
 			strCode+='})';
 
 			// correcao automatica - false
@@ -426,6 +457,9 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 				strCode+= '.next(function(){';			
 				//strCode+='   console.log("OUT "+getOutput());'
 				strCode+='   endTest('+testCaseIndex+');'
+				if(($scope.testCases.length>testCaseIndex)){
+					strCode += 't'+(testCaseIndex+1)+'();';
+				}
 				strCode+='});';
 			}
 
@@ -435,7 +469,10 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 			}
 		}
 		});
-		strCode+="}; t"+testCaseIndex+"();";
+		strCode+="}; ";
+		if(testCaseIndex==0){
+			strCode+=" t"+testCaseIndex+"();";
+		}
 		
 		return strCode;
 	}
@@ -450,12 +487,48 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 					if(v.type=="boolean"){
 						strCode+="if(var_"+node.variable+"){ writer('Verdadeiro', "+isEvaluating+"); }else{ writer('Falso', "+isEvaluating+"); }";
 					}else{
-						strCode += "writer(";
-						strCode += "var_"+node.variable;
-						strCode += ","+isEvaluating+");";
+						if(v.type=="float"){
+							strCode += "if(isPutDecimalNeeded(parseFloat(var_"+node.variable+"))){";
+							strCode += "writer(";
+							strCode += "var_"+node.variable;
+							strCode += "+'.0',"+isEvaluating+");";
+							strCode += "}else{";
+							strCode += "writer(";
+							strCode += "var_"+node.variable;
+							strCode += ","+isEvaluating+");";
+							strCode += "}";
+
+						}else{
+							strCode += "writer(";
+							strCode += "var_"+node.variable;
+							strCode += ","+isEvaluating+");";
+						}
 					}
 					strCode += "})";
 				}
+			}
+			if(node.type=="while"){
+				// while
+				strCode+= '.next(function(){';
+				//strCode+= 'var i'+node.id+ ' = 0;';
+				strCode+= 'function loop'+node.id+'(){';
+				strCode+= '	return next(function(){})'; // apenas para poder encadear
+				if(node.nodes.length>0){
+					strCode+= $scope.genNode(isEvaluating, node.nodes, vars, testCaseIndex);
+				}
+				strCode+='	.next(function(){';
+				//strCode+='		++i'+node.id+';';
+				
+				strCode+='		if('+$scope.genExp(node.exp, 'boolean')+'){';
+				
+				strCode+='			return loop'+node.id+'();';
+				strCode+='		}'
+				strCode+='	});';
+				strCode+='}';
+				strCode+='		if('+$scope.genExp(node.exp, 'boolean')+'){';
+				strCode+='return loop'+node.id+'();';
+				strCode+='}';
+				strCode+='})';
 			}
 			if(node.type=="for"){
 				
@@ -466,7 +539,7 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 					strCode+= 'function loop'+node.id+'(){';
 					strCode+= '	return next(function(){})'; // apenas para poder encadear
 					if(node.nodes.length>0){
-						strCode+= $scope.genNode(isEvaluating, node.nodes, vars);
+						strCode+= $scope.genNode(isEvaluating, node.nodes, vars, testCaseIndex);
 					}
 					strCode+='	.next(function(){';
 					strCode+='		++i'+node.id+';';
@@ -494,7 +567,7 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 					strCode+= 'function loop'+node.id+'(){';
 					strCode+= '	return next(function(){})'; // apenas para poder encadear
 					if(node.nodes.length>0){
-						strCode+= $scope.genNode(isEvaluating, node.nodes, vars);
+						strCode+= $scope.genNode(isEvaluating, node.nodes, vars, testCaseIndex);
 					}
 					strCode+='	.next(function(){';
 					strCode+='		++var_'+node.using+';';
@@ -526,7 +599,7 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 					strCode+= 'function loop'+node.id+'(){';
 					strCode+= '	return next(function(){})'; // apenas para poder encadear
 					if(node.nodes.length>0){
-						strCode+= $scope.genNode(isEvaluating, node.nodes, vars);
+						strCode+= $scope.genNode(isEvaluating, node.nodes, vars, testCaseIndex);
 					}
 					strCode+='	.next(function(){';
 					if(node.stepType=="val"){
@@ -558,7 +631,13 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 				if(node.variable!=""){
 					strCode+= '.next(function () {';
 					strCode+="		var_"+node.variable+"=";
-					strCode+="			("+$scope.genExp(node.exp, vars[node.variable].type)+")";
+					if(vars[node.variable].type=="int"){
+						strCode+="parseInt("+$scope.genExp(node.exp, vars[node.variable].type)+")";
+					}else if(vars[node.variable].type=="float"){
+						strCode+="parseFloat("+$scope.genExp(node.exp, vars[node.variable].type)+")";
+					}else{
+						strCode+="			("+$scope.genExp(node.exp, vars[node.variable].type)+")";
+					}
 					strCode+="		;";
 					strCode+= '})';
 				}
@@ -578,7 +657,7 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 					strCode+= '/* '+v.type+' */';
 				}else{
 					strCode+= '.next(function () {';
-					strCode+= '    var a = "'+readerInput(testCaseIndex)+'";';
+					strCode+= '    var a = readerInput('+testCaseIndex+');';
 				}
 				if(v.type=="int"){
 					strCode+= "		var_"+node.variable +" = parseInt(a);";	
@@ -599,9 +678,9 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 			if(node.type=="if"){
 				strCode+= '.next(function () {';
 				strCode+= 'if('+$scope.genExp(node.exp, 'boolean')+'){';
-				strCode+= 'return next(function () {})'+$scope.genNode(isEvaluating, node.nodes1, vars);
+				strCode+= 'return next(function () {})'+$scope.genNode(isEvaluating, node.nodes1, vars, testCaseIndex);
 				strCode+= '}else{';
-				strCode+= 'return next(function () {})'+$scope.genNode(isEvaluating, node.nodes2, vars);
+				strCode+= 'return next(function () {})'+$scope.genNode(isEvaluating, node.nodes2, vars, testCaseIndex);
 				strCode+= '}';
 				strCode+= '})';
 			}
@@ -610,7 +689,7 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 	}
 	$scope.genExp = function(exp, type){
 		var strCode = "";
-		console.log(exp);
+		//console.log(exp);
 		angular.forEach(exp, function(ex, key){
 			if(ex.t == "var"){
 				strCode+=" var_"+ex.v+" ";
@@ -648,6 +727,7 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 	}
 
 	$scope.add = function(parent, parentId, type, name) {
+		$rootScope.trackAction("add;type="+type);
 	    var newNode = {
 	    					id: $scope.itemCount++,
 		    				type: type,
@@ -676,6 +756,12 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 		if(type=="write"){
 			newNode.id = "write_"+newNode.id;
 			newNode.variable = "";
+		}
+		if(type=="while"){
+			newNode.id = "while_"+newNode.id;
+			newNode.exp = [];
+			newNode.isChildrenVisible = true;
+			newNode.nodes = [];
 		}
 		if(type=="for"){
 			newNode.id = "for_"+newNode.id;
@@ -728,6 +814,19 @@ function IvProgCreateCtrl($scope, $rootScope, IvProgSource, $filter){
 		$.post('save.php', { src: JSON.stringify($scope.program) }, function(id) {
 			$("body").append("<iframe src='get.php?id=" + id + "' style='display: none;' ></iframe>");
 		});
+	}
+
+
+
+	if(ilaParams.MA_PARAM_Proposition!=null){
+		$.get(ilaParams.MA_PARAM_Proposition, function(d){
+			if(d!=null){
+				$scope.mapping = d.mapping;
+				$scope.program = d.src;
+				$scope.testCases = d.testCases;
+				$scope.$apply()
+			}
+		}, "json");	
 	}
 }
 function IvProgAbertoCtrl($scope){

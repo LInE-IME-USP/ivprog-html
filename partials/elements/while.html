@@ -1,0 +1,14 @@
+<div class="instr repeat" id="node{{node.id}}">
+    <div class="handle"><i class="fa fa-sort"></i></div>
+        <span><a href="javascript:;" ng-click="childrenVisible(node)"><img src="img/expand_up.png" ng-show="node.isChildrenVisible" /><img src="img/expand_down.png" ng-hide="node.isChildrenVisible" /></a></span>
+        <span>
+            Enquanto (
+            <span edit-expression-java="node.exp" type="'boolean'" vars="program.functions[currentFunction].vars"></span> )
+             
+        </span>
+        
+    <span ng-show="node.isChildrenVisible">
+        <span ng-include="'nodes.html'"></span>
+        <span ng-include="'partials/elements/btns.html'"></span>
+    </span>
+</div>
