@@ -18,6 +18,9 @@ Versão corrente rodando: https://rawgithub.com/tuliofaria/ivprog/master/main.ht
 
 ## Subindo o servidor de testes:
 - gulp
+- basta abrir o navegador e acessar: http://localhost:8080/main.html ou http://127.0.0.1:8080/main.html
+- gulp --port 8081
+- para rodar na porta 8081
 
 ## Dúvidas:
 - romenig em gmail.com ou tuliofaria em gmail.com

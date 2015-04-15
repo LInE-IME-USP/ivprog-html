@@ -6,6 +6,8 @@ var gulp = require('gulp'),
     clean = require('gulp-clean'),
     connect = require('gulp-connect');
 
+var port = (gutil.env.port ? gutil.env.port : '8080');
+
 // JSHint task
 gulp.task('lint', function() {
   gulp.src('./app/scripts/*.js')
@@ -29,7 +31,7 @@ gulp.task('browserify', function() {
 });
 
 gulp.task('connect', function() {
-  connect.server();
+  connect.server({ port: port });
 });
 
 gulp.task('watch', ['connect', 'lint'], function() {
